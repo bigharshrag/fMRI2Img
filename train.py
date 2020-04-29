@@ -54,7 +54,7 @@ generated_label = 0
 
 # Setup Adam optimizers for both G and D
 optimizerD = optim.Adam(discriminator.parameters(), lr=lr, betas=(beta1, 0.999))
-optimizerG = optim.Adam(geenrator.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerG = optim.Adam(generator.parameters(), lr=lr, betas=(beta1, 0.999))
 
 # Training Loop
 train_discr = True
@@ -78,32 +78,34 @@ for it in range(num_epochs):
         encoded_generated_image = encoder.forward(generator_output)
         generator_encoded_loss = mse_loss(encoded_generated_image, encoded_real_image)
 
+        discriminator.zero_grad()
         # Run the discriminator on real image
         real_classification = discriminator.forward(data_image)
         real_labels = torch.full((batch_size,), real_label, device=device)
-        real_disc_loss = bce_loss(real_classification, real_labels)
+        disc_loss_real = bce_loss(real_classification, real_labels)
         if train_discr:
-            # TODO apply backward
-            pass
+            disc_loss_real.backward()
 
         # Run the discriminator on generated data
-        generated_classification = discriminator.forward(generator_output)
+        generated_classification = discriminator.forward(generator_output.detach())
         generated_labels = torch.full((batch_size,), generated_label, device=device)
-        generated_disc_loss = bce_loss(generated_classification, real_labels)
+        disc_loss_gen = bce_loss(generated_classification, real_labels)
         if train_discr:
-            # TODO apply backward
-            pass
+            disc_loss_gen.backward()
 
+        optimizerD.step()
+
+        generator.zero_grad()
         # Run the discriminator on generated data with opposite labels, to get the gradient for the generator
-        # TODO figure out what this means / what's going on here
         generated_classification_for_generator = discriminator.forward(generator_output)
         real_labels_for_generator_loss = torch.full((batch_size,), real_label, device=device)
-        disc_loss_for_generator = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
+        generator_disc_loss = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
 
         if train_gen:
-            # TODO optimize generator by applying losses
-            # generator.net.backward_simple()
-            # generator.apply_update()
+            gen_loss = args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss
+            gen_loss.backward()
+    
+        optimizerG.step()
 
         # Display info
         # if it % display_every == 0:
@@ -124,7 +126,7 @@ for it in range(num_epochs):
 
         # Switch optimizing discriminator and generator, so that neither of them overfits too much
         
-        discr_loss_ratio = (real_disc_loss + generated_disc_loss) / disc_loss_for_generator
+        discr_loss_ratio = (disc_loss_real + disc_loss_gen) / generator_disc_loss
         
         if discr_loss_ratio < 1e-1 and train_discr:
             train_discr = False
