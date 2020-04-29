@@ -1,35 +1,15 @@
 from torch import nn
+import torchvision.models as models
 
 # Encoder Code
 class Encoder(nn.Module):
     def __init__(self, ngpu, input_dim=64):
         super(Encoder, self).__init__()
-        self.ngpu = ngpu
-        # todo figure out weight fillers
-        self.s1 = nn.Sequential(
-            nn.Conv2d(input_dim, 96, 11, stride=4),
-            nn.ReLU(),
-            nn.MaxPool2d(3, stride=2),
-            nn.LocalResponseNorm(5, alpha=0.0001, beta=0.75),
-            nn.Conv2d(96, 256, 5, padding=2, group=2),
-            nn.ReLU(),
-            nn.MaxPool2d(3, stride=2),
-            nn.LocalResponseNorm(5, alpha=0.0001, beta=0.75),
-            nn.Conv2d(256, 384, 3, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(384, 384, 3, padding=1, group=2),
-            nn.ReLU(),
-            nn.Conv2d(384, 256, 3, padding=1, group=2),
-            nn.ReLU(),
-            nn.MaxPool2d(3, stride=2),
-        )
-
+        original_alexnet = models.alexnet(pretrained=True)
+        self.features = nn.Sequential(*list(original_alexnet.children())[:-1])
         
     def forward(self, input):
-        s1 = self.s1(input)
-        # TODO figure out if recon_loss needs to be in the model itself
-        generated = s1
-        return generated
+        return self.features(input)
 
 # Generator Code
 class Generator(nn.Module):
@@ -46,7 +26,7 @@ class Generator(nn.Module):
 
         # Need to figure out for these layers msra stuff, input sizes
         self.s2 = nn.Sequential(
-            nn.ConvTranspose2d(4096, 256, 4, padding=1, stride=2),
+            nn.ConvTranspose2d(456, 256, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
             nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
@@ -68,7 +48,7 @@ class Generator(nn.Module):
 
     def forward(self, input):
         s1 = self.s1(input)
-        s1 = s1.view(64, 456, 4, 4)
+        s1 = s1.view(-1, 456, 4, 4)
         s2 = self.s2(s1)
 
         # TODO figure out crop
@@ -107,7 +87,7 @@ class Discriminator(nn.Module):
 
     def forward(self, input):
         s1 = self.s1(input)
-        s1 = s1.view(64, 256)
+        s1 = s1.view(-1, 256)
         s2 = self.s2(s1)
 
         output = self.softmax(s2)
