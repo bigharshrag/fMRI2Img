@@ -1,63 +1,114 @@
 from torch import nn
 
+# Encoder Code
+class Encoder(nn.Module):
+    def __init__(self, ngpu, input_dim=64):
+        super(Encoder, self).__init__()
+        self.ngpu = ngpu
+        # todo figure out weight fillers
+        self.s1 = nn.Sequential(
+            nn.Conv2d(input_dim, 96, 11, stride=4),
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),
+            nn.LocalResponseNorm(5, alpha=0.0001, beta=0.75),
+            nn.Conv2d(96, 256, 5, padding=2, group=2),
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),
+            nn.LocalResponseNorm(5, alpha=0.0001, beta=0.75),
+            nn.Conv2d(256, 384, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(384, 384, 3, padding=1, group=2),
+            nn.ReLU(),
+            nn.Conv2d(384, 256, 3, padding=1, group=2),
+            nn.ReLU(),
+            nn.MaxPool2d(3, stride=2),
+        )
+
+        
+    def forward(self, input):
+        s1 = self.s1(input)
+        # TODO figure out if recon_loss needs to be in the model itself
+        generated = s1
+        return generated
+
 # Generator Code
 class Generator(nn.Module):
-    def __init__(self, ngpu):
+    def __init__(self, ngpu, input_dim=64):
         super(Generator, self).__init__()
         self.ngpu = ngpu
-        self.main = nn.Sequential(
-            nn
+        self.s1 = nn.Sequential(
+            nn.Linear(input_dim, 4096),
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.Linear(4096, 4096),
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.Linear(4096, 4096)
         )
-        self.main = nn.Sequential(
-            # input is Z, going into a convolution
-            nn.ConvTranspose2d( nz, ngf * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 8),
-            nn.ReLU(True),
-            # state size. (ngf*8) x 4 x 4
-            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 4),
-            nn.ReLU(True),
-            # state size. (ngf*4) x 8 x 8
-            nn.ConvTranspose2d( ngf * 4, ngf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 2),
-            nn.ReLU(True),
-            # state size. (ngf*2) x 16 x 16
-            nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf),
-            nn.ReLU(True),
-            # state size. (ngf) x 32 x 32
-            nn.ConvTranspose2d( ngf, nc, 4, 2, 1, bias=False),
-            nn.Tanh()
-            # state size. (nc) x 64 x 64
+
+        # Need to figure out for these layers msra stuff, input sizes
+        self.s2 = nn.Sequential(
+            nn.ConvTranspose2d(?, 256, 4, padding=1, stride=2)
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 512, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 256, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 256, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 128, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 128, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 64, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 32, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(?, 3, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.LeakyReLU(negative_slope=0.3),
         )
 
     def forward(self, input):
-        return self.main(input)
+        s1 = self.s1(input)
+        s1 = s1.view(64, 456, 4, 4)
+        s2 = self.s2(s1)
+
+        # TODO figure out crop
+        # TODO figure out if recon_loss needs to be in the model itself
+        generated = s2
+        return generated
+
 
 class Discriminator(nn.Module):
-    def __init__(self, ngpu):
+    def __init__(self, ngpu, input_dim=64):
         super(Discriminator, self).__init__()
         self.ngpu = ngpu
-        self.main = nn.Sequential(
-            # input is (nc) x 64 x 64
-            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf) x 32 x 32
-            nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 2),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*2) x 16 x 16
-            nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 4),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*4) x 8 x 8
-            nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 8),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*8) x 4 x 4
-            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
-            nn.Sigmoid()
+        self.s1 = nn.Sequential(
+            nn.Conv2d(input_dim, 32, 7, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 5, stride=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 128, 3, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(128, 256, 3, stride=1),
+            nn.ReLU(),
+            nn.Conv2d(256, 256, 3, stride=2),
+            nn.ReLU(),
+            nn.MaxPool2d(11, stride=11)
         )
 
+        self.s2 = nn.Sequential(
+            nn.Dropout(p=0.5),
+            nn.Linear(256, 256),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(256, 2)
+        )
+
+        self.softmax = nn.Softmax()
+
     def forward(self, input):
-        return self.main(input)
+        s1 = self.s1(input)
+        s1 = s1.view(64, 256)
+        s2 = self.s2(s1)
+
+        output = self.softmax(s2)
+        return output
