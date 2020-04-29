@@ -14,34 +14,35 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
 # Decide which device we want to run on
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 
+encoder = Encoder(ngpu).to(device)
 
 # Create the generator
-generator_network = Generator(ngpu).to(device)
+generator = Generator(ngpu).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
-    generator_network = nn.DataParallel(generator_network, list(range(ngpu)))
+    geenrator = nn.DataParallel(geenrator, list(range(ngpu)))
 
 # Apply the weights_init function to randomly initialize all weights
 #  to mean=0, stdev=0.2.
-# generator_network.apply(weights_init)
+# geenrator.apply(weights_init)
 
 # Print the model
-print(generator_network)
+print(geenrator)
 
 # Create the Discriminator
-discriminator_network = Discriminator(ngpu).to(device)
+discriminator = Discriminator(ngpu).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
-    discriminator_network = nn.DataParallel(discriminator_network, list(range(ngpu)))
+    discriminator = nn.DataParallel(discriminator, list(range(ngpu)))
 
 # Apply the weights_init function to randomly initialize all weights
 #  to mean=0, stdev=0.2.
-# discriminator_network.apply(weights_init)
+# discriminator.apply(weights_init)
 
 # Print the model
-print(discriminator_network)# Create the generator
+print(discriminator)# Create the generator
 
 # Initialize BCELoss function
 criterion = nn.BCELoss()
@@ -55,96 +56,101 @@ real_label = 1
 fake_label = 0
 
 # Setup Adam optimizers for both G and D
-optimizerD = optim.Adam(discriminator_network.parameters(), lr=lr, betas=(beta1, 0.999))
-optimizerG = optim.Adam(generator_network.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerD = optim.Adam(discriminator.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerG = optim.Adam(geenrator.parameters(), lr=lr, betas=(beta1, 0.999))
 
 # Training Loop
+train_discr = True
+train_gen = True
 
-# Lists to keep track of progress
-img_list = []
-G_losses = []
-D_losses = []
-iters = 0
+# Training main loop
+start = time.time()
+for it in range(num_epochs):
+    for data_fmri, data_image in dataloader:
+        # Feed the data (images) to the encoder and run it        
+        encoded_real_image = encoder.forward(data_image)
 
-print("Starting Training Loop...")
-# For each epoch
-for epoch in range(num_epochs):
-    # For each batch in the dataloader
-    for i, data in enumerate(dataloader, 0):
+        # Feed the data to the generator and run it
+        generator_output = generator.forward(data_fmri)
+        # TODO compute recon loss on generator_output vs data_image
+        recon_loss = 0
 
-        ############################
-        # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-        ###########################
-        ## Train with all-real batch
-        discriminator_network.zero_grad()
-        # Format batch
-        real_cpu = data[0].to(device)
-        b_size = real_cpu.size(0)
-        label = torch.full((b_size,), real_label, device=device)
-        # Forward pass real batch through D
-        output = discriminator_network(real_cpu).view(-1)
-        # Calculate loss on all-real batch
-        errD_real = criterion(output, label)
-        # Calculate gradients for D in backward pass
-        errD_real.backward()
-        D_x = output.mean().item()
+        # Feed the generated image into the encoder
+        encoded_generated_image = encoder.forward(generated_output)
+        # TODO compute recon loss on encoded_generated_image vs encoded_real_image
+        recon_loss = 0
 
-        ## Train with all-fake batch
-        # Generate batch of latent vectors
-        noise = torch.randn(b_size, nz, 1, 1, device=device)
-        # Generate fake image batch with G
-        fake = generator_network(noise)
-        label.fill_(fake_label)
-        # Classify all fake batch with D
-        output = discriminator_network(fake.detach()).view(-1)
-        # Calculate D's loss on the all-fake batch
-        errD_fake = criterion(output, label)
-        # Calculate the gradients for this batch
-        errD_fake.backward()
-        D_G_z1 = output.mean().item()
-        # Add the gradients from the all-real and all-fake batches
-        errD = errD_real + errD_fake
-        # Update D
-        optimizerD.step()
+        # Run the discriminator on real image
+        real_classification = discriminator.forward(data_image)
+        if train_discr:
+            # TODO compute loss for classification, apply backward
+            pass
 
-        ############################
-        # (2) Update G network: maximize log(D(G(z)))
-        ###########################
-        generator_network.zero_grad()
-        label.fill_(real_label)  # fake labels are real for generator cost
-        # Since we just updated D, perform another forward pass of all-fake batch through D
-        output = discriminator_network(fake).view(-1)
-        # Calculate G's loss based on this output
-        errG = criterion(output, label)
-        # Calculate gradients for G
-        errG.backward()
-        D_G_z2 = output.mean().item()
-        # Update G
-        optimizerG.step()
 
-        # Output training stats
-        if i % 50 == 0:
-            print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                  % (epoch, num_epochs, i, len(dataloader),
-                     errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
+        # Run the discriminator on generated data
+        generated_classification = discriminator.forward(generator_output)
+        if train_discr:
+            # TODO compute loss for classification, apply backward
+            pass
 
-        # Save Losses for plotting later
-        G_losses.append(errG.item())
-        D_losses.append(errD.item())
+        # Run the discriminator on generated data with opposite labels, to get the gradient for the generator
+        # TODO figure out what this means / what's going on here
+        # discriminator.net.blobs['data'].data[...] = generated_img
+        # discriminator.net.blobs['label'].data[...] = np.zeros((batch_size,1,1,1), dtype='float32')
+        # discriminator.net.forward_simple()
+        # discr_fake_for_generator_loss = np.copy(discriminator.net.blobs['discr_loss'].data)
+        
+        if train_gen:
+            # TODO optimize generator by applying losses
+            pass
+            # generator.increment_iter()
+            # generator.net.clear_param_diffs()
+            # encoder.net.backward_simple()
+            # discriminator.net.backward_simple()
+            # generator.net.blobs['generated'].diff[...] = encoder.net.blobs['data'].diff + discriminator.net.blobs['data'].diff
+            # generator.net.backward_simple()
+            # generator.apply_update()
 
-        # Check how the generator is doing by saving G's output on fixed_noise
-        # if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
-        #     with torch.no_grad():
-        #         fake = generator_network(fixed_noise).detach().cpu()
-        #     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+        # Display info
+        # if it % display_every == 0:
+        #     print('========================================')
+        #     print('')
+        #     print('[%s] Iteration %d: %f seconds' % (time.strftime('%c'), it, time.time()-start))
+        #     print('  recon loss: %e * %e = %f' % (recon_loss, recon_loss_weight, recon_loss*recon_loss_weight))
+        #     print('  feat loss: %e * %e = %f' % (feat_recon_loss, feat_loss_weight, feat_recon_loss*feat_loss_weight))
+        #     print('  discr real loss: %e * %e = %f' % (discr_real_loss, discr_loss_weight, discr_real_loss*discr_loss_weight))
+        #     print('  discr fake loss: %e * %e = %f' % (discr_fake_loss, discr_loss_weight, discr_fake_loss*discr_loss_weight))
+        #     print('  discr fake loss for generator: %e * %e = %f' % (discr_fake_for_generator_loss, discr_loss_weight, discr_fake_for_generator_loss*discr_loss_weight))
+        #     start = time.time()
 
-        iters += 1
+        # Save snapshot
+        # if it % snapshot_every == 0:
+        #     # TODO save models
+        #     pass
 
-plt.figure(figsize=(10,5))
-plt.title("Generator and Discriminator Loss During Training")
-plt.plot(G_losses,label="G")
-plt.plot(D_losses,label="D")
-plt.xlabel("iterations")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
+        # Switch optimizing discriminator and generator, so that neither of them overfits too much
+        
+        discr_loss_ratio = (discr_real_loss + discr_fake_loss) / discr_fake_for_generator_loss
+        
+        if discr_loss_ratio < 1e-1 and train_discr:
+            train_discr = False
+            train_gen = True
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+        if discr_loss_ratio > 5e-1 and not train_discr:
+            train_discr = True
+            train_gen = True
+            print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+        if discr_loss_ratio > 1e1 and train_gen:
+            train_gen = False
+            train_discr = True
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+
+# TODO rebuild this plot
+# plt.figure(figsize=(10,5))
+# plt.title("Generator and Discriminator Loss During Training")
+# plt.plot(G_losses,label="G")
+# plt.plot(D_losses,label="D")
+# plt.xlabel("iterations")
+# plt.ylabel("Loss")
+# plt.legend()
+# plt.show()

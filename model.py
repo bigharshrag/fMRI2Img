@@ -3,8 +3,9 @@ import torchvision.models as models
 
 # Encoder Code
 class Encoder(nn.Module):
-    def __init__(self, ngpu, input_dim=64):
+    def __init__(self, ngpu):
         super(Encoder, self).__init__()
+        self.ngpu = ngpu
         original_alexnet = models.alexnet(pretrained=True)
         self.features = nn.Sequential(*list(original_alexnet.children())[:-1])
         
