@@ -4,10 +4,12 @@ from torch import nn
 from torch import optim
 import torchvision.utils as vutils
 from matplotlib import pyplot as plt
-from constants import ngpu, nz, ngf, beta1, lr, batch_size, workers, num_epochs
+from constants import BaseOptions
+from data.fMRIimgdataset import fMRIImgDataset
 
-dataset = [] # TODO @Rishabh
+args = BaseOptions().parse()
 
+dataset = fMRIImgDataset(args, subject='sub-01')
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
                                          shuffle=True, num_workers=workers)
 
