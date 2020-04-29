@@ -1,10 +1,10 @@
-from gan import Generator, Discriminator
+from model import Encoder, Generator, Discriminator
 import torch
 from torch import nn
 from torch import optim
 import torchvision.utils as vutils
 from matplotlib import pyplot as plt
-from constants import device, ngpu, nz, ngf, beta1, lr, batch_size, workers, num_epochs
+from constants import ngpu, nz, ngf, beta1, lr, batch_size, workers, num_epochs
 
 dataset = [] # TODO @Rishabh
 

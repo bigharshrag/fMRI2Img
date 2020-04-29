@@ -46,24 +46,24 @@ class Generator(nn.Module):
 
         # Need to figure out for these layers msra stuff, input sizes
         self.s2 = nn.Sequential(
-            nn.ConvTranspose2d(?, 256, 4, padding=1, stride=2)
+            nn.ConvTranspose2d(4096, 256, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 512, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 256, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.ConvTranspose2d(512, 256, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 256, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 128, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.ConvTranspose2d(128, 128, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 128, 3, padding=1, stride=1) # Need to figure out these layers
+            nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 64, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.ConvTranspose2d(64, 64, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 32, 4, padding=1, stride=2) # Need to figure out these layers
+            nn.ConvTranspose2d(64, 32, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(?, 3, 4, padding=1, stride=2) # Need to figure out these layers
-            nn.LeakyReLU(negative_slope=0.3),
+            nn.ConvTranspose2d(32, 3, 4, padding=1, stride=2),
+            nn.LeakyReLU(negative_slope=0.3)
         )
 
     def forward(self, input):
