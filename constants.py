@@ -17,6 +17,8 @@ class BaseOptions():
         self.parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate for optimizers')
         self.parser.add_argument('--beta1', default=0.5, type=float, help='Beta1 hyperparam for Adam optimizers')
             
+        self.parser.add_argument('--snapshot_interval', default=5)
+
     def parse(self):
         self.opt = self.parser.parse_args()
         return self.opt

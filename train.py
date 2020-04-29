@@ -1,4 +1,5 @@
 from model import Encoder, Generator, Discriminator
+import time
 import torch
 from torch import nn
 from torch import optim
@@ -110,21 +111,20 @@ for it in range(num_epochs):
         optimizerG.step()
 
         # Display info
-        # if it % display_every == 0:
-        #     print('========================================')
-        #     print('')
-        #     print('[%s] Iteration %d: %f seconds' % (time.strftime('%c'), it, time.time()-start))
-        #     print('  recon loss: %e * %e = %f' % (recon_loss, recon_loss_weight, recon_loss*recon_loss_weight))
-        #     print('  feat loss: %e * %e = %f' % (feat_recon_loss, feat_loss_weight, feat_recon_loss*feat_loss_weight))
-        #     print('  discr real loss: %e * %e = %f' % (discr_real_loss, discr_loss_weight, discr_real_loss*discr_loss_weight))
-        #     print('  discr fake loss: %e * %e = %f' % (discr_fake_loss, discr_loss_weight, discr_fake_loss*discr_loss_weight))
-        #     print('  discr fake loss for generator: %e * %e = %f' % (discr_fake_for_generator_loss, discr_loss_weight, discr_fake_for_generator_loss*discr_loss_weight))
-        #     start = time.time()
+        print('========================================')
+        print('')
+        print('[%s] Iteration %d: %f seconds' % (time.strftime('%c'), it, time.time()-start))
+        print('  generator image loss: %e' % (generator_image_loss))
+        print('  generator feat loss: %e' % (generator_encoded_loss))
+        print('  discr real loss: %e' % (disc_loss_real))
+        print('  discr generated loss: %e' % (disc_loss_gen))
+        print('  generator loss from discriminator: %e' % (generator_disc_loss))
+        start = time.time()
 
         # Save snapshot
-        # if it % snapshot_every == 0:
-        #     # TODO save models
-        #     pass
+        if it % args.snapshot_interval == 0:
+            torch.save(generator.state_dict(), 'generator_{0}.pth'.format(it))
+            torch.save(discriminator.state_dict(), 'discriminator_{0}.pth'.format(it))
 
         # Switch optimizing discriminator and generator, so that neither of them overfits too much
         
@@ -133,15 +133,15 @@ for it in range(num_epochs):
         if discr_loss_ratio < 1e-1 and train_discr:
             train_discr = False
             train_gen = True
-            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss, train_discr, train_gen))
         if discr_loss_ratio > 5e-1 and not train_discr:
             train_discr = True
             train_gen = True
-            print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+            print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss, train_discr, train_gen))
         if discr_loss_ratio > 1e1 and train_gen:
             train_gen = False
             train_discr = True
-            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (discr_real_loss, discr_fake_loss, discr_fake_for_generator_loss, train_discr, train_gen))
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss, train_discr, train_gen))
 
 # TODO rebuild this plot
 # plt.figure(figsize=(10,5))
