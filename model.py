@@ -26,7 +26,7 @@ class Generator(nn.Module):
 
         # Need to figure out for these layers msra stuff, input sizes
         self.s2 = nn.Sequential(
-            nn.ConvTranspose2d(456, 256, 4, padding=1, stride=2),
+            nn.ConvTranspose2d(256, 256, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
             nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
@@ -48,7 +48,7 @@ class Generator(nn.Module):
 
     def forward(self, input):
         s1 = self.s1(input)
-        s1 = s1.view(-1, 456, 4, 4)
+        s1 = s1.view(-1, 256, 4, 4)
         s2 = self.s2(s1)
 
         # TODO figure out crop
