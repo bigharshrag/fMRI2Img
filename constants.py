@@ -1,36 +1,22 @@
-# Root directory for dataset
-dataroot = "data/"
+import argparse
 
-# Number of workers for dataloader
-workers = 4
+class BaseOptions():
+    def __init__(self):
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument('--dataroot', type=str, default='data', help='Root directory for dataset')
+        self.parser.add_argument('--workers', default=4, type=int, help='Number of workers for dataloader')
+        self.parser.add_argument('--batch_size', default=24, type=int, help='Batch size during training')
 
-# Batch size during training
-batch_size = 24
+        self.parser.add_argument('--image_size', default=64, type=int, help='Spatial size of training images. All images will be resized to this size using a transformer.')
+        self.parser.add_argument('--nc', default=3, type=int, help='Number of channels in the training images. For color images this is 3')
+        self.parser.add_argument('--nz', default=100, type=int, help='Size of z latent vector (i.e. size of generator input')
+        self.parser.add_argument('--ngf', default=64, type=int, help='Size of feature maps in generator')
+        self.parser.add_argument('--ndf', default=64, type=int, help='Size of feature maps in discriminator')
 
-# Spatial size of training images. All images will be resized to this
-#   size using a transformer.
-image_size = 64
-
-# Number of channels in the training images. For color images this is 3
-nc = 3
-
-# Size of z latent vector (i.e. size of generator input)
-nz = 100
-
-# Size of feature maps in generator
-ngf = 64
-
-# Size of feature maps in discriminator
-ndf = 64
-
-# Number of training epochs
-num_epochs = 10
-
-# Learning rate for optimizers
-lr = 1e-4
-
-# Beta1 hyperparam for Adam optimizers
-beta1 = 0.5
-
-# Number of GPUs available. Use 0 for CPU mode.
-ngpu = 1
+        self.parser.add_argument('--num_epochs', default=10, type=int, help='Number of training epochs')
+        self.parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate for optimizers')
+        self.parser.add_argument('--beta1', default=0.5, type=float, help='Beta1 hyperparam for Adam optimizers')
+            
+    def parse(self):
+        self.opt = self.parser.parse_args()
+        return self.opt
