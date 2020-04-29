@@ -6,16 +6,18 @@ import torchvision.utils as vutils
 from matplotlib import pyplot as plt
 from constants import BaseOptions
 from data.fMRIimgdataset import fMRIImgDataset
+import time
 
 args = BaseOptions().parse()
+batch_size = args.batch_size
+ngpu = args.ngpu
 
 dataset = fMRIImgDataset(args, subject='sub-01')
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
-                                         shuffle=True, num_workers=workers)
+                                         shuffle=True, num_workers=args.workers)
 
 # Decide which device we want to run on
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
-
 encoder = Encoder(ngpu).to(device)
 
 # Create the generator
@@ -48,15 +50,15 @@ print(discriminator)
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
-fixed_noise = torch.randn(ngf, nz, 1, 1, device=device)
+fixed_noise = torch.randn(args.ngf, args.nz, 1, 1, device=device)
 
 # Establish convention for real and fake labels during training
 real_label = 1
 generated_label = 0
 
 # Setup Adam optimizers for both G and D
-optimizerD = optim.Adam(discriminator.parameters(), lr=lr, betas=(beta1, 0.999))
-optimizerG = optim.Adam(generator.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerD = optim.Adam(discriminator.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
+optimizerG = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
 
 # Training Loop
 train_discr = True
@@ -67,7 +69,7 @@ mse_loss = nn.MSELoss(reduction='sum')
 
 # Training main loop
 start = time.time()
-for it in range(num_epochs):
+for it in range(args.num_epochs):
     for data_fmri, data_image in dataloader:
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
