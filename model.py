@@ -82,12 +82,12 @@ class Discriminator(nn.Module):
             nn.Linear(256, 1)
         )
 
-        self.softmax = nn.Softmax()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         s1 = self.s1(input)
         s1 = s1.view(-1, 256)
         s2 = self.s2(s1)
 
-        output = self.softmax(s2)
+        output = self.sigmoid(s2)
         return output
