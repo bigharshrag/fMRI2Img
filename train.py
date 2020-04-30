@@ -4,6 +4,7 @@ import torch
 from torch import nn
 from torch import optim
 import torchvision.utils as vutils
+from torch.utils.tensorboard import SummaryWriter
 from matplotlib import pyplot as plt
 from constants import BaseOptions
 from data.fMRIimgdataset import fMRIImgDataset
@@ -70,6 +71,9 @@ train_gen = True
 bce_loss = nn.BCELoss()
 mse_loss = nn.MSELoss(reduction='sum')
 
+writer = SummaryWriter('runs/' + args.exp_name)
+
+total_steps = 0
 # Training main loop
 start = time.time()
 for it in range(args.num_epochs):
@@ -77,6 +81,7 @@ for it in range(args.num_epochs):
         data_fmri, data_image = data[0].to(device), data[1].to(device)
         curr_sz = data_image.size(0)
 
+        total_steps += curr_sz
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
 
@@ -126,6 +131,11 @@ for it in range(args.num_epochs):
         print('  discr real loss: %e' % (disc_loss_real))
         print('  discr generated loss: %e' % (disc_loss_gen))
         print('  generator loss from discriminator: %e' % (generator_disc_loss))
+        writer.add_scalar('data/generator_image_loss', generator_image_loss, total_steps)
+        writer.add_scalar('data/generator_feat_loss', generator_encoded_loss, total_steps)
+        writer.add_scalar('data/discr_real_loss', disc_loss_real, total_steps)
+        writer.add_scalar('data/discr_generated_loss', disc_loss_gen, total_steps)
+        writer.add_scalar('data/generator_loss', generator_disc_loss, total_steps)
         start = time.time()
 
         # Save snapshot

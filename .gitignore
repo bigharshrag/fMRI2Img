@@ -1,6 +1,7 @@
 *.pyc
 *.p
+*.pth
+runs/
 data/fmri
 data/images
 data/*.txt
-*.pth
