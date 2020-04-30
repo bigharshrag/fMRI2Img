@@ -17,9 +17,8 @@ class fMRIImgDataset(Dataset):
         self.sz = len(self.subj_data)
 
         self.img_transform = transforms.Compose([
-                transforms.RandomCrop(227),
-                # transforms.ToTensor(),
-                transforms.Lambda(lambda image: torch.from_numpy(np.array(image).astype(np.float32))),
+                transforms.RandomCrop(224),
+                transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ])
 
@@ -28,10 +27,6 @@ class fMRIImgDataset(Dataset):
 
     def __getitem__(self, idx):
         fmri, label, img = self.subj_data[idx]
-        # print(fmri)
-        # print(label)
-        # print(img)
-        print(img.shape)
         return fmri, self.img_transform(img)
     
     def getdata(self, subj='sub-01'):
@@ -102,28 +97,21 @@ class fMRIImgDataset(Dataset):
         fmri_data = (fmri_data - fmri_data_mean) / fmri_data_std
 
         for j0, sample_index in np.ndenumerate(sample_index_list):
+            if (j0[0] + 1) % 1000 == 0:
+                print(j0[0]+1)
+
             sample_label = fmri_labels[sample_index - 1]  # Sample label (file name)
             sample_label_num = label_table[sample_label]  # Sample label (serial number)
 
             # fMRI data in the sample
             sample_data = fmri_data[sample_index - 1, :]
-            sample_data = np.float64(sample_data)  
+            sample_data = np.float32(sample_data)  
             sample_data = np.reshape(sample_data, (sample_data.size, 1, 1))  # Num voxel x 1 x 1
 
             # Load images
             image_file = images_table[sample_label]
-            img = PIL.Image.open(image_file)
-            img = np.array(img.resize(img_size, PIL.Image.BILINEAR))
-
-            if img.ndim == 2: # Monochrome --> RGB
-                img_rgb = np.zeros((img_size[0], img_size[1], 3), dtype=img.dtype)
-                img_rgb[:, :, 0] = img
-                img_rgb[:, :, 1] = img
-                img_rgb[:, :, 2] = img
-                img = img_rgb
-
-            img = img.transpose(2, 0, 1)  # h x w x c --> c x h x w
-            img = img[::-1]               # RGB --> BGR
+            img = PIL.Image.open(image_file).convert("RGB")
+            img = img.resize(img_size, PIL.Image.BILINEAR)
 
             data_arr.append([])
             data_arr[-1].append(sample_data)

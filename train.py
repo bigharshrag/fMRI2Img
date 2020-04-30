@@ -72,10 +72,7 @@ mse_loss = nn.MSELoss(reduction='sum')
 start = time.time()
 for it in range(args.num_epochs):
     for i, data in enumerate(dataloader):
-        data_fmri, data_image = data[0], data[2]
-        print(data_fmri)
-        print(data_image)
-        # data_fmri, data_image = data[0].to(device), data[2].to(device)
+        data_fmri, data_image = data[0].to(device), data[1].to(device)
 
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
