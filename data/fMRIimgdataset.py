@@ -97,9 +97,9 @@ class fMRIImgDataset(Dataset):
         fmri_data = (fmri_data - fmri_data_mean) / fmri_data_std
 
         for j0, sample_index in np.ndenumerate(sample_index_list):
-            if (j0[0] + 1) % 50 == 0:
+            if (j0[0] + 1) % 1000 == 0:
                 print(j0[0]+1)
-                break
+                # break
 
             sample_label = fmri_labels[sample_index - 1]  # Sample label (file name)
             sample_label_num = label_table[sample_label]  # Sample label (serial number)
