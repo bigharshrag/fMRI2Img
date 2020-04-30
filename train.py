@@ -22,7 +22,8 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 encoder = Encoder(ngpu).to(device)
 
 # Create the generator
-generator = Generator(ngpu).to(device)
+tfmri, _ = dataset.__getitem__(0)
+generator = Generator(ngpu, tfmri.shape[0]).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
@@ -47,7 +48,7 @@ if (device.type == 'cuda') and (ngpu > 1):
 # discriminator.apply(weights_init)
 
 # Print the model
-print(discriminator)
+# print(discriminator)
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
@@ -73,6 +74,7 @@ start = time.time()
 for it in range(args.num_epochs):
     for i, data in enumerate(dataloader):
         data_fmri, data_image = data[0].to(device), data[1].to(device)
+        print(data_fmri.shape)
 
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
