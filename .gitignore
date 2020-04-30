@@ -3,3 +3,4 @@
 data/fmri
 data/images
 data/*.txt
+*.pth

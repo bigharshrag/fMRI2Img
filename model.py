@@ -35,11 +35,11 @@ class Generator(nn.Module):
             nn.LeakyReLU(negative_slope=0.3),
             nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(128, 128, 4, padding=1, stride=2),
+            nn.ConvTranspose2d(256, 128, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
             nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1),
             nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(64, 64, 4, padding=1, stride=2),
+            nn.ConvTranspose2d(128, 64, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
             nn.ConvTranspose2d(64, 32, 4, padding=1, stride=2),
             nn.LeakyReLU(negative_slope=0.3),
@@ -51,9 +51,7 @@ class Generator(nn.Module):
         s1 = self.s1(input)
         s1 = s1.view(-1, 256, 4, 4)
         s2 = self.s2(s1)
-
-        # TODO figure out crop
-        # TODO figure out if recon_loss needs to be in the model itself
+        s2 = s2[:, :, 16:240, 16:240]
         generated = s2
         return generated
 
@@ -67,7 +65,7 @@ class Discriminator(nn.Module):
             nn.ReLU(),
             nn.Conv2d(32, 64, 5, stride=1),
             nn.ReLU(),
-            nn.Conv2d(32, 128, 3, stride=2),
+            nn.Conv2d(64, 128, 3, stride=2),
             nn.ReLU(),
             nn.Conv2d(128, 256, 3, stride=1),
             nn.ReLU(),
@@ -81,7 +79,7 @@ class Discriminator(nn.Module):
             nn.Linear(256, 256),
             nn.ReLU(),
             nn.Dropout(p=0.5),
-            nn.Linear(256, 2)
+            nn.Linear(256, 1)
         )
 
         self.softmax = nn.Softmax()

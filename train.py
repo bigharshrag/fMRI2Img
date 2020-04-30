@@ -34,10 +34,10 @@ if (device.type == 'cuda') and (ngpu > 1):
 # generator.apply(weights_init)
 
 # Print the model
-print(generator)
+# print(generator)
 
 # Create the Discriminator
-discriminator = Discriminator(ngpu).to(device)
+discriminator = Discriminator(ngpu, 3).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
@@ -66,6 +66,7 @@ optimizerG = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, 0
 train_discr = True
 train_gen = True
 
+# bce_loss = nn.BCEWithLogitsLoss()
 bce_loss = nn.BCELoss()
 mse_loss = nn.MSELoss(reduction='sum')
 
@@ -74,7 +75,7 @@ start = time.time()
 for it in range(args.num_epochs):
     for i, data in enumerate(dataloader):
         data_fmri, data_image = data[0].to(device), data[1].to(device)
-        print(data_fmri.shape)
+        curr_sz = data_image.size(0)
 
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
@@ -89,15 +90,15 @@ for it in range(args.num_epochs):
 
         discriminator.zero_grad()
         # Run the discriminator on real image
-        real_classification = discriminator.forward(data_image)
-        real_labels = torch.full((batch_size,), real_label, device=device)
+        real_classification = discriminator.forward(data_image).view(-1)
+        real_labels = torch.full((curr_sz,), real_label, device=device)
         disc_loss_real = bce_loss(real_classification, real_labels)
         if train_discr:
             disc_loss_real.backward()
 
         # Run the discriminator on generated data
-        generated_classification = discriminator.forward(generator_output.detach())
-        generated_labels = torch.full((batch_size,), generated_label, device=device)
+        generated_classification = discriminator.forward(generator_output.detach()).view(-1)
+        generated_labels = torch.full((curr_sz,), generated_label, device=device)
         disc_loss_gen = bce_loss(generated_classification, real_labels)
         if train_discr:
             disc_loss_gen.backward()
@@ -106,8 +107,8 @@ for it in range(args.num_epochs):
 
         generator.zero_grad()
         # Run the discriminator on generated data with opposite labels, to get the gradient for the generator
-        generated_classification_for_generator = discriminator.forward(generator_output)
-        real_labels_for_generator_loss = torch.full((batch_size,), real_label, device=device)
+        generated_classification_for_generator = discriminator.forward(generator_output).view(-1)
+        real_labels_for_generator_loss = torch.full((curr_sz,), real_label, device=device)
         generator_disc_loss = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
 
         if train_gen:
@@ -129,8 +130,10 @@ for it in range(args.num_epochs):
 
         # Save snapshot
         if it % args.snapshot_interval == 0:
-            torch.save(generator.state_dict(), 'generator_{0}.pth'.format(it))
-            torch.save(discriminator.state_dict(), 'discriminator_{0}.pth'.format(it))
+            # torch.save(generator.state_dict(), 'generator_{0}.pth'.format(it))
+            # torch.save(discriminator.state_dict(), 'discriminator_{0}.pth'.format(it))
+            torch.save(generator.state_dict(), 'generator.pth')
+            torch.save(discriminator.state_dict(), 'discriminator.pth')
 
         # Switch optimizing discriminator and generator, so that neither of them overfits too much
         
