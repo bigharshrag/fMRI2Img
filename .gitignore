@@ -1,2 +1,5 @@
 *.pyc
 *.p
+data/fmri
+data/images
+data/*.txt

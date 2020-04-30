@@ -26,14 +26,14 @@ generator = Generator(ngpu).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
-    geenrator = nn.DataParallel(geenrator, list(range(ngpu)))
+    generator = nn.DataParallel(generator, list(range(ngpu)))
 
 # Apply the weights_init function to randomly initialize all weights
 #  to mean=0, stdev=0.2.
-# geenrator.apply(weights_init)
+# generator.apply(weights_init)
 
 # Print the model
-print(geenrator)
+print(generator)
 
 # Create the Discriminator
 discriminator = Discriminator(ngpu).to(device)
@@ -71,7 +71,12 @@ mse_loss = nn.MSELoss(reduction='sum')
 # Training main loop
 start = time.time()
 for it in range(args.num_epochs):
-    for data_fmri, data_image in dataloader:
+    for i, data in enumerate(dataloader):
+        data_fmri, data_image = data[0], data[2]
+        print(data_fmri)
+        print(data_image)
+        # data_fmri, data_image = data[0].to(device), data[2].to(device)
+
         # Feed the data (images) to the encoder and run it        
         encoded_real_image = encoder.forward(data_image)
 
