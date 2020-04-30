@@ -69,6 +69,7 @@ train_gen = True
 
 # bce_loss = nn.BCEWithLogitsLoss()
 bce_loss = nn.BCELoss()
+nll_loss = nn.NLLLoss()
 mse_loss = nn.MSELoss(reduction='sum')
 
 writer = SummaryWriter('runs/' + args.exp_name)
@@ -114,7 +115,7 @@ for it in range(args.num_epochs):
         # Run the discriminator on generated data with opposite labels, to get the gradient for the generator
         generated_classification_for_generator = discriminator.forward(generator_output).view(-1)
         real_labels_for_generator_loss = torch.full((curr_sz,), real_label, device=device)
-        generator_disc_loss = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
+        generator_disc_loss = nll_loss(generated_classification_for_generator, real_labels_for_generator_loss)
 
         if train_gen:
             gen_loss = args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss
@@ -135,7 +136,7 @@ for it in range(args.num_epochs):
         writer.add_scalar('data/generator_feat_loss', generator_encoded_loss, total_steps)
         writer.add_scalar('data/discr_real_loss', disc_loss_real, total_steps)
         writer.add_scalar('data/discr_generated_loss', disc_loss_gen, total_steps)
-        writer.add_scalar('data/generator_loss', generator_disc_loss, total_steps)
+        writer.add_scalar('data/generator_disc_loss', generator_disc_loss, total_steps)
         start = time.time()
 
         # Save snapshot

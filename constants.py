@@ -16,12 +16,12 @@ class BaseOptions():
         self.parser.add_argument('--ndf', default=64, type=int, help='Size of feature maps in discriminator')
 
         self.parser.add_argument('--num_epochs', default=10, type=int, help='Number of training epochs')
-        self.parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate for optimizers')
+        self.parser.add_argument('--lr', default=1e-4, type=float, help='Learning rate for optimizers')
         self.parser.add_argument('--beta1', default=0.5, type=float, help='Beta1 hyperparam for Adam optimizers')
         
-        self.parser.add_argument('--lambda_1', default=2000000, type=float, help='Beta1 hyperparam for Adam optimizers')
-        self.parser.add_argument('--lambda_2', default=0.01, type=float, help='Beta1 hyperparam for Adam optimizers')
-        self.parser.add_argument('--lambda_3', default=100, type=float, help='Beta1 hyperparam for Adam optimizers')
+        self.parser.add_argument('--lambda_1', default=2000000, type=float, help='weight for generator_image_loss')
+        self.parser.add_argument('--lambda_2', default=0.01, type=float, help='weight for generator_encoded_loss')
+        self.parser.add_argument('--lambda_3', default=100, type=float, help='weight for generator_disc_loss')
             
         self.parser.add_argument('--snapshot_interval', default=5)
 
