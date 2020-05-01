@@ -40,17 +40,17 @@ class Generator(nn.Module):
             # nn.BatchNorm2d(256),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
-            # nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1, bias=False),
+            nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1, bias=False),
             # nn.BatchNorm2d(256),
-            # nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(256, 128, 4, padding=1, stride=2, bias=False),
             # nn.BatchNorm2d(128),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
-            # nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1, bias=False),
+            nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1, bias=False),
             # nn.BatchNorm2d(128),
-            # nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(128, 64, 4, padding=1, stride=2, bias=False),
             # nn.BatchNorm2d(64),

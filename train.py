@@ -1,6 +1,7 @@
 from model import Encoder, Generator, Discriminator
 import time
 import torch
+import numpy as np
 from torch import nn
 from torch import optim
 import torchvision.utils as vutils
@@ -38,8 +39,7 @@ def weights_init(m):
         nn.init.normal_(m.weight.data, 1.0, 0.02)
         nn.init.constant_(m.bias.data, 0)
 
-# Apply the weights_init function to randomly initialize all weights
-#  to mean=0, stdev=0.2.
+# Apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.2.
 generator.apply(weights_init)
 
 # Print the model
@@ -52,16 +52,15 @@ discriminator = Discriminator(ngpu, 3).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     discriminator = nn.DataParallel(discriminator, list(range(ngpu)))
 
-# Apply the weights_init function to randomly initialize all weights
-#  to mean=0, stdev=0.2.
+# Apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.2.
 discriminator.apply(weights_init)
 
 # Print the model
 # print(discriminator)
 
-# Create batch of latent vectors that we will use to visualize
-#  the progression of the generator
-fixed_noise = torch.randn(args.ngf, args.nz, 1, 1, device=device)
+dataiter = iter(dataloader)
+vfm, vim = dataiter.next()
+vfm, vim = vfm[:4], vim[:4]
 
 # Establish convention for real and fake labels during training
 real_label = 1
@@ -142,20 +141,20 @@ for it in range(args.num_epochs):
 
         # Switch optimizing discriminator and generator, so that neither of them overfits too much
         
-        # discr_loss_ratio = (disc_loss_real.item() + disc_loss_gen.item()) / generator_disc_loss.item()
+        discr_loss_ratio = (disc_loss_real.item() + disc_loss_gen.item()) / generator_disc_loss.item()
         
-        # if discr_loss_ratio < 1e-1 and train_discr:
-        #     train_discr = False
-        #     train_gen = True
-        #     print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
-        # if discr_loss_ratio > 5e-1 and not train_discr:
-        #     train_discr = True
-        #     train_gen = True
-        #     print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
-        # if discr_loss_ratio > 1e1 and train_gen:
-        #     train_gen = False
-        #     train_discr = True
-        #     print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
+        if discr_loss_ratio < 1e-1 and train_discr:
+            train_discr = False
+            train_gen = True
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
+        if discr_loss_ratio > 5e-1 and not train_discr:
+            train_discr = True
+            train_gen = True
+            print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
+        if discr_loss_ratio > 1e1 and train_gen:
+            train_gen = False
+            train_discr = True
+            print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
 
         # Display info
         print('========================================')
@@ -171,7 +170,7 @@ for it in range(args.num_epochs):
         writer.add_scalar('data/discr_real_loss', disc_loss_real.item(), total_steps)
         writer.add_scalar('data/discr_generated_loss', disc_loss_gen.item(), total_steps)
         writer.add_scalar('data/generator_loss', args.lambda_3 * generator_disc_loss.item(), total_steps)
-        # writer.add_scalar('data/discr_loss_ratio', discr_loss_ratio, total_steps)
+        writer.add_scalar('data/discr_loss_ratio', discr_loss_ratio, total_steps)
         writer.add_scalars('loss/', {
             # 'generator': args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss.item(),
             'generator': generator_disc_loss.item(),
@@ -179,13 +178,11 @@ for it in range(args.num_epochs):
         }, total_steps)
         start = time.time()
 
-
-# TODO rebuild this plot
-# plt.figure(figsize=(10,5))
-# plt.title("Generator and Discriminator Loss During Training")
-# plt.plot(G_losses,label="G")
-# plt.plot(D_losses,label="D")
-# plt.xlabel("iterations")
-# plt.ylabel("Loss")
-# plt.legend()
-# plt.show()
+        if i % 5 == 0 :
+            with torch.no_grad():
+                fakeimg = generator(vfm.to(device)).detach().cpu()
+                # img_grid = np.transpose(vutils.make_grid(fakeimg, padding=5, normalize=True).cpu(),(1,2,0))
+                img_grid = vutils.make_grid(fakeimg, padding=5, normalize=True).cpu()
+                img_grid2 = vutils.make_grid(vim, padding=5, normalize=True).cpu()
+                writer.add_image('viz_input', img_grid2)
+                writer.add_image('viz_output', img_grid)           
