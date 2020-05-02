@@ -142,6 +142,7 @@ class fMRIImgDataset(Dataset):
 
         print("Done")
         return data_arr
+        
 class fMRIImgClassifierDataset(fMRIImgDataset):
     def __init__(self, args, subject='sub-01', split='train'):
         self.args = args
@@ -167,6 +168,6 @@ class fMRIImgClassifierDataset(fMRIImgDataset):
         return len(self.filtered_data)
 
     def __getitem__(self, idx):
-        fmri, img, class_label, class_idx, label = self.subj_data[idx]
-        return fmri, class_label
+        fmri, img, class_label, class_count, label = self.filtered_data[idx]
+        return fmri, class_label, class_count
     

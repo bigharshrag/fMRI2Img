@@ -18,11 +18,16 @@ dataset = fMRIImgClassifierDataset(args, subject='sub-01', split='train')
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
                                          shuffle=True, num_workers=args.workers)
 
+val_dataset = fMRIImgClassifierDataset(args, subject='sub-01', split='test')
+val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size,
+                                         shuffle=True, num_workers=args.workers)
+
+
 # Decide which device we want to run on
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 
 # Create the generator
-tfmri, _ = dataset.__getitem__(0)
+tfmri, _, _ = dataset.__getitem__(0)
 classifier = Classifier(ngpu, tfmri.shape[0], 150).to(device)
 
 # Handle multi-gpu if desired
@@ -44,7 +49,7 @@ start = time.time()
 for it in range(args.num_epochs):
     correct = 0
     total = 0
-    dataset.set_split('train')
+    classifier.train()
     for i, data in enumerate(dataloader):
         data_fmri, labels = data[0].to(device), data[1].to(device)
         classifier.zero_grad()
@@ -64,8 +69,7 @@ for it in range(args.num_epochs):
 
         writer.add_scalar('data/classifier_loss', loss, total_steps)
 
-        print('loss: ', loss, i)
-    print("Train Accuracy: ", correct, total, float(correct) / total)
+    print("Epoch {0} Train Accuracy: {1} / {2} = {3}".format(it, correct, total, float(correct)/total))
     # Save snapshot
     if it % args.snapshot_interval == 0:
         torch.save(classifier.state_dict(), 'classifier.pth')
@@ -74,17 +78,18 @@ for it in range(args.num_epochs):
         correct = 0
         total = 0
         with torch.no_grad():
-            dataset.set_split('val')
-            for i, data in enumerate(dataloader):
+            classifier.eval()
+            for i, data in enumerate(val_loader):
                 data_fmri, labels = data[0].to(device), data[1].to(device)
                 classifier_output = classifier.forward(data_fmri)
                 predictions = torch.argmax(classifier_output, dim=1)
+                # import pdb; pdb.set_trace()
 
                 for idx in range(len(predictions)):
                     if predictions[idx] == labels[idx]:
                         correct += 1
                     total +=1 
-        print("Val Accuracy: ", correct, total, float(correct) / total)
+        print("Epoch {0} Val Accuracy: {1} / {2} = {3}".format(it, correct, total, float(correct)/total))
 
 
 

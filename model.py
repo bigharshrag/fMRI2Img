@@ -156,17 +156,21 @@ class Classifier(nn.Module):
         super(Classifier, self).__init__()
         self.s1 = nn.Sequential(
             nn.Linear(input_dim, 8192),
-            nn.ReLU(),
             nn.BatchNorm1d(8192),
+            nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(8192, 4096),
-            nn.ReLU(),
             nn.BatchNorm1d(4096),
+            nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(4096, 1024),
-            nn.ReLU(),
             nn.BatchNorm1d(1024),
-            nn.Linear(1024, 512),
             nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(1024, 512),
             nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(512, output_dim)
         )
 
