@@ -1,12 +1,12 @@
 import argparse
 
 class BaseOptions():
-    def __init__(self):
+    def __init__(self, type='gan'):
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('--exp_name', type=str, default='exp1', help='Name of the experiment')
+        self.parser.add_argument('--exp_name', type=str, default=type, help='Name of the experiment')
         self.parser.add_argument('--dataroot', type=str, default='data', help='Root directory for dataset')
-        self.parser.add_argument('--workers', default=8, type=int, help='Number of workers for dataloader')
-        self.parser.add_argument('--batch_size', default=16, type=int, help='Batch size during training')
+        self.parser.add_argument('--workers', default=4, type=int, help='Number of workers for dataloader')
+        self.parser.add_argument('--batch_size', default=8, type=int, help='Batch size during training')
         self.parser.add_argument('--ngpu', default=1, type=int, help='Size of feature maps in discriminator')
 
         self.parser.add_argument('--image_size', default=64, type=int, help='Spatial size of training images. All images will be resized to this size using a transformer.')

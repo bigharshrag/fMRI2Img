@@ -24,7 +24,7 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 encoder = Encoder(ngpu).to(device)
 
 # Create the generator
-tfmri, _ = dataset.__getitem__(0)
+tfmri, _, _ = dataset.__getitem__(0)
 generator = Generator(ngpu, tfmri.shape[0]).to(device)
 
 # Handle multi-gpu if desired
@@ -123,7 +123,7 @@ for it in range(args.num_epochs):
         # Run the discriminator on generated data with opposite labels, to get the gradient for the generator
         generated_classification_for_generator = discriminator(generator_output).view(-1)
         real_labels_for_generator_loss = torch.full((curr_sz,), real_label, device=device)
-        generator_disc_loss = nll_loss(generated_classification_for_generator, real_labels_for_generator_loss)
+        generator_disc_loss = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
 
         if train_gen:
             # gen_loss = args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss

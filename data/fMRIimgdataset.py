@@ -28,8 +28,8 @@ class fMRIImgDataset(Dataset):
         return self.sz
 
     def __getitem__(self, idx):
-        fmri, label, img = self.subj_data[idx]
-        return fmri, self.img_transform(img)
+        fmri, class_label, label, img = self.subj_data[idx]
+        return fmri, self.img_transform(img), class_label
     
     def getdata(self, subj='sub-01'):
         # img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227
@@ -51,7 +51,7 @@ class fMRIImgDataset(Dataset):
             'output_dir': './data'}
         ]
         # Image data
-        image_dir = './data/images/training'
+        image_dir = './data/deeprecon_stimuli_20190212/stimuli/natural-image_training'
         image_file_pattern = '*.JPEG'
 
         sbj = fmri_data_table[int(subj[-1])]
@@ -64,7 +64,9 @@ class fMRIImgDataset(Dataset):
         images_table = {os.path.splitext(os.path.basename(f))[0]: f
                         for f in images_list}                                 # Image label to file path table
         label_table = {os.path.splitext(os.path.basename(f))[0]: i + 1
-                    for i, f in enumerate(images_list)}                    # Image label to serial number table
+                    for i, f in enumerate(images_list)}  
+        class_list = list(set([os.path.splitext(os.path.basename(f))[0][:os.path.splitext(os.path.basename(f))[0].find('_')] for f in images_list]))
+        class_table = {f: i for i, f in enumerate(class_list)} 
 
         # Get image labels in the fMRI data
         fmri_labels = fmri_data_bd.get('Label')[:, 1].flatten()
@@ -105,6 +107,8 @@ class fMRIImgDataset(Dataset):
 
             sample_label = fmri_labels[sample_index - 1]  # Sample label (file name)
             sample_label_num = label_table[sample_label]  # Sample label (serial number)
+            class_label = sample_label[:sample_label.find('_')]
+            class_label_num = class_table[class_label]
 
             # fMRI data in the sample
             sample_data = fmri_data[sample_index - 1, :]
@@ -118,6 +122,7 @@ class fMRIImgDataset(Dataset):
 
             data_arr.append([])
             data_arr[-1].append(sample_data)
+            data_arr[-1].append(class_label_num)
             data_arr[-1].append(sample_label_num)
             data_arr[-1].append(img)
 

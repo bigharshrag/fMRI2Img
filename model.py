@@ -150,3 +150,36 @@ class Discriminator(nn.Module):
 
     def forward(self, input):
         return self.s1(input)
+
+class Classifier(nn.Module):
+    def __init__(self, ngpu, input_dim=64, output_dim=2):
+        super(Classifier, self).__init__()
+        self.s1 = nn.Sequential(
+            nn.Linear(input_dim, 4096),
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.Linear(4096, 4096),
+            nn.LeakyReLU(negative_slope=0.3),
+        )
+
+        self.s2 = nn.Sequential(
+            nn.Conv1d(1, 4, 4, stride=2),
+            nn.ReLU(),
+            nn.Conv1d(4, 2, 2, stride=2),
+            nn.ReLU(),
+            nn.Conv1d(2, 2, 2, stride=1),
+            nn.ReLU(),
+            nn.Conv1d(2, 1, 1, stride=1),
+            nn.ReLU()
+        )
+
+        self.ff = nn.Linear(1022, output_dim)
+        self.softmax = nn.Softmax()
+        
+    def forward(self, input):
+        s1 =  self.s1(input)
+        s1 = s1.unsqueeze(1)
+        s2 = self.s2(s1)
+        s2 = s2.squeeze()
+        output = self.ff(s2)
+
+        return self.softmax(output)
