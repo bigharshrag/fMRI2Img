@@ -25,12 +25,11 @@ class fMRIImgDataset(Dataset):
             ])
 
     def __len__(self):
-        # return 200
         return self.sz
 
     def __getitem__(self, idx):
-        fmri, class_label, label, img = self.subj_data[idx]
-        return fmri, self.img_transform(img), class_label
+        fmri, img, class_label, class_idx, label = self.subj_data[idx]
+        return fmri, self.img_transform(img), class_label, class_idx
     
     def getdata(self, subj='sub-01'):
         # img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227
@@ -60,14 +59,27 @@ class fMRIImgDataset(Dataset):
 
         # Load fMRI data
         fmri_data_bd = bdpy.BData(sbj['data_file'])
+
+        def getClassName(img):
+            return img[:img.find('_')]
+
         # Load image files
         images_list = glob.glob(os.path.join(image_dir, image_file_pattern))  # List of image files (full path)
-        images_table = {os.path.splitext(os.path.basename(f))[0]: f
-                        for f in images_list}                                 # Image label to file path table
-        label_table = {os.path.splitext(os.path.basename(f))[0]: i + 1
-                    for i, f in enumerate(images_list)}  
-        class_list = list(set([os.path.splitext(os.path.basename(f))[0][:os.path.splitext(os.path.basename(f))[0].find('_')] for f in images_list]))
-        class_table = {f: i for i, f in enumerate(class_list)} 
+        image_names = [os.path.splitext(os.path.basename(f))[0] for f in images_list]
+        images_table = {os.path.splitext(os.path.basename(f))[0]: f for f in images_list}                                 # Image label to file path table
+        label_table = {n: i + 1 for i, n in enumerate(image_names)}  
+        class_list = list(set([n[:n.find('_')] for n in image_names]))
+        class_table = {}
+        class_counts = {}
+        for img in image_names:
+            img_class = getClassName(img)
+            class_idx = class_list.index(img_class)
+            if img_class not in class_counts:
+                class_table[img] = (class_idx, 0)
+                class_counts[img_class] = 1
+            else:
+                class_table[img] = (class_idx, class_counts[img_class])
+                class_counts[img_class] += 1
 
         # Get image labels in the fMRI data
         fmri_labels = fmri_data_bd.get('Label')[:, 1].flatten()
@@ -108,8 +120,7 @@ class fMRIImgDataset(Dataset):
 
             sample_label = fmri_labels[sample_index - 1]  # Sample label (file name)
             sample_label_num = label_table[sample_label]  # Sample label (serial number)
-            class_label = sample_label[:sample_label.find('_')]
-            class_label_num = class_table[class_label]
+            class_idx, class_count = class_table[sample_label]
 
             # fMRI data in the sample
             sample_data = fmri_data[sample_index - 1, :]
@@ -118,14 +129,44 @@ class fMRIImgDataset(Dataset):
 
             # Load images
             image_file = images_table[sample_label]
+
             img = PIL.Image.open(image_file).convert("RGB")
             # img = img.resize(img_size, PIL.Image.BILINEAR)
 
             data_arr.append([])
             data_arr[-1].append(sample_data)
-            data_arr[-1].append(class_label_num)
-            data_arr[-1].append(sample_label_num)
             data_arr[-1].append(img)
+            data_arr[-1].append(class_idx) # which class is it
+            data_arr[-1].append(class_count) # what index in that class is it
+            data_arr[-1].append(sample_label_num)
 
         print("Done")
         return data_arr
+class fMRIImgClassifierDataset(fMRIImgDataset):
+    def __init__(self, args, subject='sub-01', split='train'):
+        self.args = args
+        self.subj_data = self.getdata(subject)
+        self.set_split(split)
+        
+    def get_filtered(self, split):
+        def f(datum):
+            if split == 'train':
+                return datum[3] < 6
+            else:
+                return datum[3] >= 6
+        return f
+
+    def set_split(self, split):
+        self.split = split
+        self.filtered_data = self.filter_data(self.subj_data, split)
+
+    def filter_data(self, data, split):
+        return list(filter(self.get_filtered(split), data))
+
+    def __len__(self):
+        return len(self.filtered_data)
+
+    def __getitem__(self, idx):
+        fmri, img, class_label, class_idx, label = self.subj_data[idx]
+        return fmri, class_label
+    

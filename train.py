@@ -24,7 +24,7 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 encoder = Encoder(ngpu).to(device)
 
 # Create the generator
-tfmri, _, _ = dataset.__getitem__(0)
+tfmri, _, _, _ = dataset.__getitem__(0)
 generator = Generator(ngpu, tfmri.shape[0]).to(device)
 
 # Handle multi-gpu if desired
@@ -59,7 +59,7 @@ discriminator.apply(weights_init)
 # print(discriminator)
 
 dataiter = iter(dataloader)
-vfm, vim = dataiter.next()
+vfm, vim, _, _ = dataiter.next()
 vfm, vim = vfm[:4], vim[:4]
 
 # Establish convention for real and fake labels during training
