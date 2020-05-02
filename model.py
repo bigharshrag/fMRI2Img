@@ -156,30 +156,37 @@ class Classifier(nn.Module):
         super(Classifier, self).__init__()
         self.s1 = nn.Sequential(
             nn.Linear(input_dim, 4096),
-            nn.LeakyReLU(negative_slope=0.3),
+            nn.ReLU(),
             nn.Linear(4096, 4096),
-            nn.LeakyReLU(negative_slope=0.3),
-        )
-
-        self.s2 = nn.Sequential(
-            nn.Conv1d(1, 4, 4, stride=2),
             nn.ReLU(),
-            nn.Conv1d(4, 2, 2, stride=2),
+            nn.Linear(4096, 1024),
             nn.ReLU(),
-            nn.Conv1d(2, 2, 2, stride=1),
+            nn.Linear(1024, 256),
             nn.ReLU(),
-            nn.Conv1d(2, 1, 1, stride=1),
+            nn.Linear(256, output_dim),
             nn.ReLU()
         )
 
-        self.ff = nn.Linear(1022, output_dim)
-        self.softmax = nn.Softmax()
+        # self.s2 = nn.Sequential(
+        #     nn.Conv1d(1, 4, 4, stride=2),
+        #     nn.ReLU(),
+        #     nn.Conv1d(4, 2, 2, stride=2),
+        #     nn.ReLU(),
+        #     nn.Conv1d(2, 2, 2, stride=1),
+        #     nn.ReLU(),
+        #     nn.Conv1d(2, 1, 1, stride=1),
+        #     nn.ReLU()
+        # )
+
+        # self.ff = nn.Linear(1022, output_dim)
+
+        self.softmax = nn.Softmax(dim=1)
         
     def forward(self, input):
-        s1 =  self.s1(input)
-        s1 = s1.unsqueeze(1)
-        s2 = self.s2(s1)
-        s2 = s2.squeeze()
-        output = self.ff(s2)
+        output =  self.s1(input)
+        # s1 = s1.unsqueeze(1)
+        # s2 = self.s2(s1)
+        # s2 = s2.squeeze()
+        # output = self.ff(s2)
 
-        return self.softmax(output)
+        return output # self.softmax(output)

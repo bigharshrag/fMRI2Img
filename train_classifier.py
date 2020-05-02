@@ -32,22 +32,31 @@ if (device.type == 'cuda') and (ngpu > 1):
 # Setup Adam optimizers for both G and D
 optimizer = optim.Adam(classifier.parameters(), lr=args.c_lr, betas=(args.beta1, 0.999))
 
-nll_loss = nn.NLLLoss()
+ce_loss = nn.CrossEntropyLoss()
 
 writer = SummaryWriter('runs/' + args.exp_name)
+
+print('batches', len(dataset) / batch_size)
 
 total_steps = 0
 # Training main loop
 start = time.time()
 for it in range(args.num_epochs):
+    correct = 0
+    total = 0
     for i, data in enumerate(dataloader):
         data_fmri, labels = data[0].to(device), data[2].to(device)
         classifier.zero_grad()
         # import pdb; pdb.set_trace()
         # Feed the data to the generator and run it
         classifier_output = classifier.forward(data_fmri)
-
-        loss = nll_loss(classifier_output, labels)
+        predictions = torch.argmax(classifier_output, dim=1)
+        for idx in range(len(predictions)):
+            if predictions[idx] == labels[idx]:
+                correct += 1
+            total +=1 
+        import pdb; pdb.set_trace()
+        loss = ce_loss(classifier_output, labels)
 
         loss.backward()
 
@@ -55,10 +64,12 @@ for it in range(args.num_epochs):
 
         writer.add_scalar('data/classifier_loss', loss, total_steps)
 
-        print('loss: ', loss)
+        print('loss: ', loss, i)
     # Save snapshot
     if it % args.snapshot_interval == 0:
         torch.save(classifier.state_dict(), 'classifier.pth')
+
+    print("Accuracy: ", float(correct) / total)
 # TODO rebuild this plot
 # plt.figure(figsize=(10,5))
 # plt.title("Generator and Discriminator Loss During Training")
