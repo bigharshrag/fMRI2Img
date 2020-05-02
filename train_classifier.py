@@ -55,7 +55,6 @@ for it in range(args.num_epochs):
             if predictions[idx] == labels[idx]:
                 correct += 1
             total +=1 
-        import pdb; pdb.set_trace()
         loss = ce_loss(classifier_output, labels)
 
         loss.backward()

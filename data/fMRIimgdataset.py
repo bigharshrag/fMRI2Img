@@ -25,8 +25,8 @@ class fMRIImgDataset(Dataset):
             ])
 
     def __len__(self):
-        return 200
-        #return self.sz
+        # return 200
+        return self.sz
 
     def __getitem__(self, idx):
         fmri, class_label, label, img = self.subj_data[idx]
