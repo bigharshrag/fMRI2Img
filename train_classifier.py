@@ -44,6 +44,7 @@ start = time.time()
 for it in range(args.num_epochs):
     correct = 0
     total = 0
+    dataset.set_split('train')
     for i, data in enumerate(dataloader):
         data_fmri, labels = data[0].to(device), data[1].to(device)
         classifier.zero_grad()
@@ -77,12 +78,12 @@ for it in range(args.num_epochs):
             for i, data in enumerate(dataloader):
                 data_fmri, labels = data[0].to(device), data[1].to(device)
                 classifier_output = classifier.forward(data_fmri)
-            predictions = torch.argmax(classifier_output, dim=1)
+                predictions = torch.argmax(classifier_output, dim=1)
 
-            for idx in range(len(predictions)):
-                if predictions[idx] == labels[idx]:
-                    correct += 1
-                total +=1 
+                for idx in range(len(predictions)):
+                    if predictions[idx] == labels[idx]:
+                        correct += 1
+                    total +=1 
         print("Val Accuracy: ", correct, total, float(correct) / total)
 
 
