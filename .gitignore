@@ -5,3 +5,4 @@ runs/
 data/fmri
 data/images
 data/*.txt
+.nfs*

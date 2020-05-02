@@ -1,4 +1,4 @@
-from model import Encoder, Generator, Discriminator
+from model import Encoder, Generator, Discriminator, DiscriminatorOld
 import time
 import torch
 import numpy as np
@@ -47,6 +47,7 @@ generator.apply(weights_init)
 
 # Create the Discriminator
 discriminator = Discriminator(ngpu, 3).to(device)
+# discriminator = DiscriminatorOld(ngpu, 3).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
@@ -78,7 +79,7 @@ train_gen = True
 bce_loss = nn.BCELoss()
 mse_loss = nn.MSELoss(reduction='mean')
 
-writer = SummaryWriter('runs/' + args.exp_name)
+writer = SummaryWriter('/scratch/cluster/rishabh/runs/' + args.exp_name)
 
 total_steps = 0
 # Training main loop
@@ -136,22 +137,24 @@ for it in range(args.num_epochs):
         if it % args.snapshot_interval == 0:
             # torch.save(generator.state_dict(), 'generator_{0}.pth'.format(it))
             # torch.save(discriminator.state_dict(), 'discriminator_{0}.pth'.format(it))
-            torch.save(generator.state_dict(), 'generator.pth')
-            torch.save(discriminator.state_dict(), 'discriminator.pth')
+            torch.save(generator.state_dict(), '/scratch/cluster/rishabh/' + args.exp_name + '_generator.pth')
+            torch.save(discriminator.state_dict(), '/scratch/cluster/rishabh/' + args.exp_name + '_discriminator.pth')
 
         # Switch optimizing discriminator and generator, so that neither of them overfits too much
         
-        discr_loss_ratio = (disc_loss_real.item() + disc_loss_gen.item()) / generator_disc_loss.item()
+        discr_loss_ratio = (disc_loss_real.item() + disc_loss_gen.item()) / (generator_disc_loss.item())
         
-        if discr_loss_ratio < 1e-1 and train_discr:
+        # if discr_loss_ratio < 1e-1 and train_discr:
+        if discr_loss_ratio < 0.1 and train_discr:
             train_discr = False
             train_gen = True
             print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
-        if discr_loss_ratio > 5e-1 and not train_discr:
+        # if discr_loss_ratio > 5e-1 and not train_discr:
+        if discr_loss_ratio > 1.2 and not train_discr:
             train_discr = True
             train_gen = True
             print(' <<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))
-        if discr_loss_ratio > 1e1 and train_gen:
+        if discr_loss_ratio > 10 and train_gen:
             train_gen = False
             train_discr = True
             print('<<< real_loss=%e, fake_loss=%e, fake_loss_for_generator=%e, train_discr=%d, train_gen=%d >>>' % (disc_loss_real, disc_loss_gen, generator_disc_loss.item(), train_discr, train_gen))

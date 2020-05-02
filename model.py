@@ -28,36 +28,36 @@ class Generator(nn.Module):
         # Need to figure out for these layers msra stuff, input sizes
         self.s2 = nn.Sequential(
             nn.ConvTranspose2d(256, 256, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(256),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1, bias=False),
             # nn.ConvTranspose2d(256, 512, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(512),
+            nn.BatchNorm2d(512),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
 
             nn.ConvTranspose2d(512, 256, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(256),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1, bias=False),
-            # nn.BatchNorm2d(256),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(256, 128, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(128),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1, bias=False),
-            # nn.BatchNorm2d(128),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(128, 64, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(64),
+            nn.BatchNorm2d(64),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(64, 32, 4, padding=1, stride=2, bias=False),
-            # nn.BatchNorm2d(32),
+            nn.BatchNorm2d(32),
             nn.LeakyReLU(negative_slope=0.3, inplace=True),
             
             nn.ConvTranspose2d(32, 3, 4, padding=1, stride=2, bias=False),
@@ -75,7 +75,7 @@ class Generator(nn.Module):
 
 
 class DiscriminatorOld(nn.Module):
-    def __init__(self, ngpu, input_dim=64):
+    def __init__(self, ngpu, input_dim=256):
         super(DiscriminatorOld, self).__init__()
         self.ngpu = ngpu
         self.s1 = nn.Sequential(
@@ -130,17 +130,17 @@ class Discriminator(nn.Module):
 
             nn.Conv2d(ndf, ndf * 2, 7, stride=4, padding=2, bias=False),
             # PrintLayer(),
-            # nn.BatchNorm2d(ndf * 2),
+            nn.BatchNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
 
             nn.Conv2d(ndf * 2, ndf * 4, 4, stride=2, padding=1, bias=False),
             # PrintLayer(),
-            # nn.BatchNorm2d(ndf * 4),
+            nn.BatchNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
 
             nn.Conv2d(ndf * 4, ndf * 8, 4, stride=2, padding=1, bias=False),
             # PrintLayer(),
-            # nn.BatchNorm2d(ndf * 8),
+            nn.BatchNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
 
             nn.Conv2d(ndf * 8, 1, 4, stride=1, padding=0, bias=False),
