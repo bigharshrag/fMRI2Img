@@ -69,6 +69,7 @@ for it in range(args.num_epochs):
 
         writer.add_scalar('data/classifier_loss', loss, total_steps)
 
+        # print('loss: ', loss, i)
     print("Epoch {0} Train Accuracy: {1} / {2} = {3}".format(it, correct, total, float(correct)/total))
     # Save snapshot
     if it % args.snapshot_interval == 0:
