@@ -17,9 +17,11 @@ class fMRIImgDataset(Dataset):
         self.sz = len(self.subj_data)
 
         self.img_transform = transforms.Compose([
-                transforms.RandomCrop(224),
+                transforms.Resize(280),
+                transforms.RandomCrop(256),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
 
     def __len__(self):
@@ -30,7 +32,7 @@ class fMRIImgDataset(Dataset):
         return fmri, self.img_transform(img)
     
     def getdata(self, subj='sub-01'):
-        img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227
+        # img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227
 
         # TODO: Make them params instead of hardcoded values
         # fMRI data :
@@ -112,7 +114,7 @@ class fMRIImgDataset(Dataset):
             # Load images
             image_file = images_table[sample_label]
             img = PIL.Image.open(image_file).convert("RGB")
-            img = img.resize(img_size, PIL.Image.BILINEAR)
+            # img = img.resize(img_size, PIL.Image.BILINEAR)
 
             data_arr.append([])
             data_arr[-1].append(sample_data)

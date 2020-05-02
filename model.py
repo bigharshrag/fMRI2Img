@@ -27,38 +27,56 @@ class Generator(nn.Module):
 
         # Need to figure out for these layers msra stuff, input sizes
         self.s2 = nn.Sequential(
-            nn.ConvTranspose2d(256, 256, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(512, 256, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(256, 128, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(128, 64, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(64, 32, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3),
-            nn.ConvTranspose2d(32, 3, 4, padding=1, stride=2),
-            nn.LeakyReLU(negative_slope=0.3)
+            nn.ConvTranspose2d(256, 256, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(256),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(256, 512, 3, padding=1, stride=1, bias=False),
+            # nn.ConvTranspose2d(256, 512, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(512),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+
+            nn.ConvTranspose2d(512, 256, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(256),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(256, 256, 3, padding=1, stride=1, bias=False),
+            # nn.BatchNorm2d(256),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(256, 128, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(128),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(128, 128, 3, padding=1, stride=1, bias=False),
+            # nn.BatchNorm2d(128),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(128, 64, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(64),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(64, 32, 4, padding=1, stride=2, bias=False),
+            # nn.BatchNorm2d(32),
+            nn.LeakyReLU(negative_slope=0.3, inplace=True),
+            
+            nn.ConvTranspose2d(32, 3, 4, padding=1, stride=2, bias=False),
+            # nn.LeakyReLU(negative_slope=0.3)
+            nn.Tanh()
         )
 
     def forward(self, input):
         s1 = self.s1(input)
         s1 = s1.view(-1, 256, 4, 4)
         s2 = self.s2(s1)
-        s2 = s2[:, :, 16:240, 16:240]
+        # s2 = s2[:, :, 16:240, 16:240]
         generated = s2
         return generated
 
 
-class Discriminator(nn.Module):
+class DiscriminatorOld(nn.Module):
     def __init__(self, ngpu, input_dim=64):
-        super(Discriminator, self).__init__()
+        super(DiscriminatorOld, self).__init__()
         self.ngpu = ngpu
         self.s1 = nn.Sequential(
             nn.Conv2d(input_dim, 32, 7, stride=4),
@@ -91,3 +109,44 @@ class Discriminator(nn.Module):
 
         output = self.sigmoid(s2)
         return output
+
+class PrintLayer(nn.Module):
+    def __init__(self):
+        super(PrintLayer, self).__init__()
+    
+    def forward(self, x):
+        # Do your print / debug stuff here
+        print(x.shape)
+        return x
+
+class Discriminator(nn.Module):
+    def __init__(self, ngpu, nc=3, ndf=256):
+        super(Discriminator, self).__init__()
+        self.ngpu = ngpu
+        self.s1 = nn.Sequential(
+            nn.Conv2d(nc, ndf, 7, stride=4, padding=2, bias=False),
+            # PrintLayer(),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf, ndf * 2, 7, stride=4, padding=2, bias=False),
+            # PrintLayer(),
+            # nn.BatchNorm2d(ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 2, ndf * 4, 4, stride=2, padding=1, bias=False),
+            # PrintLayer(),
+            # nn.BatchNorm2d(ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 4, ndf * 8, 4, stride=2, padding=1, bias=False),
+            # PrintLayer(),
+            # nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 8, 1, 4, stride=1, padding=0, bias=False),
+            # PrintLayer(),
+            nn.Sigmoid()
+        )
+
+    def forward(self, input):
+        return self.s1(input)
