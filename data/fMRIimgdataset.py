@@ -148,12 +148,9 @@ class fMRIImgDataset(Dataset):
         print("Done")
         return data_arr
 
-class fMRIImgClassifierDataset(fMRIImgDataset):
-    def __init__(self, args, subject=None, split='train'):
-        self.args = args
-        self.subj_data = self.getdata('sub-01')
-        # self.subj_data.extend(self.getdata('sub-02'))
-        # self.subj_data.extend(self.getdata('sub-03'))
+class fMRIImgClassifierDataset():
+    def __init__(self, dataset, split='train'):
+        self.dataset = dataset
         self.set_split(split)
         
     def get_filtered(self, split):
@@ -166,7 +163,7 @@ class fMRIImgClassifierDataset(fMRIImgDataset):
 
     def set_split(self, split):
         self.split = split
-        self.filtered_data = self.filter_data(self.subj_data, split)
+        self.filtered_data = self.filter_data(self.dataset.subj_data, split)
 
     def filter_data(self, data, split):
         return list(filter(self.get_filtered(split), data))
@@ -177,4 +174,32 @@ class fMRIImgClassifierDataset(fMRIImgDataset):
     def __getitem__(self, idx):
         fmri, img, class_label, class_count, label = self.filtered_data[idx]
         return fmri, class_label, class_count
+    
+
+class convImgClassifierDataset():
+    def __init__(self, dataset, split='train'):
+        self.dataset = dataset
+        self.set_split(split)
+        
+    def get_filtered(self, split):
+        def f(datum):
+            if split == 'train':
+                return datum[3] < 7
+            else:
+                return datum[3] >= 7
+        return f
+
+    def set_split(self, split):
+        self.split = split
+        self.filtered_data = self.filter_data(self.dataset.subj_data, split)
+
+    def filter_data(self, data, split):
+        return list(filter(self.get_filtered(split), data))
+
+    def __len__(self):
+        return len(self.filtered_data)
+
+    def __getitem__(self, idx):
+        fmri, img, class_label, class_count, label = self.filtered_data[idx]
+        return self.dataset.img_transform(img), class_label, class_count
     

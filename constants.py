@@ -27,6 +27,9 @@ class BaseOptions():
             
         self.parser.add_argument('--snapshot_interval', type=int, default=5)
 
+        if type == 'classifier':
+            self.parser.add_argument('--classifier_type', type=str, default='fmri', help='One of fmri or conv')
+
     def parse(self):
         self.opt = self.parser.parse_args()
         return self.opt

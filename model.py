@@ -151,9 +151,9 @@ class Discriminator(nn.Module):
     def forward(self, input):
         return self.s1(input)
 
-class Classifier(nn.Module):
+class fMRIClassifier(nn.Module):
     def __init__(self, ngpu, input_dim=64, output_dim=2):
-        super(Classifier, self).__init__()
+        super(fMRIClassifier, self).__init__()
         self.s1 = nn.Sequential(
             nn.Linear(input_dim, 4096),
             nn.BatchNorm1d(4096),
@@ -197,3 +197,28 @@ class Classifier(nn.Module):
         # output = self.ff(s2)
 
         return output # self.softmax(output)
+
+class convClassifier(nn.Module):
+    def __init__(self, ngpu, img_shape, output_dim=2):
+        super(convClassifier, self).__init__()
+        self.s1 = nn.Sequential(
+            # Defining a 2D convolution layer
+            nn.Conv2d(3, 4, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(4),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            # Defining another 2D convolution layer
+            nn.Conv2d(4, 4, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(4),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self.ff = nn.Linear(4 * 64 * 64, output_dim)
+        
+    def forward(self, input):
+        conv =  self.s1(input)
+        conv = conv.view(conv.shape[0], -1)
+        output = self.ff(conv)
+
+        return output
