@@ -62,7 +62,7 @@ class fMRIImgDataset(Dataset):
             'output_dir': './data'}
         ]
         # Image data
-        image_dir = './data/deeprecon_stimuli_20190212/stimuli/natural-image_training'
+        image_dir = './data/images/training'
         image_file_pattern = '*.JPEG'
 
         sbj = fmri_data_table[int(subj[-1]) - 1]

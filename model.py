@@ -222,3 +222,39 @@ class convClassifier(nn.Module):
         output = self.ff(conv)
 
         return output
+
+
+class convClassifierBig(nn.Module):
+    def __init__(self, ngpu, img_shape, output_dim=2):
+        super(convClassifier, self).__init__()
+        self.s1 = nn.Sequential(
+            # Defining a 2D convolution layer
+            nn.Conv2d(3, 8, kernel_size=7, stride=4, padding=1),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(8, 16, kernel_size=5, stride=4, padding=1),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(16, 32, kernel_size=3, stride=2),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+        )
+
+        self.s2 = nn.Sequential(
+            nn.Linear(64 * 4 * 4, 256),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+            nn.Linear(256, output_dim),
+            PrintLayer(),
+            nn.ReLU(inplace=True),
+        )
+        
+    def forward(self, input):
+        conv =  self.s1(input)
+        conv = conv.view(conv.shape[0], -1)
+        output = self.s2(conv)
+
+        return output

@@ -1,4 +1,4 @@
-from model import fMRIClassifier, convClassifier
+from model import fMRIClassifier, convClassifier, convClassifierBig
 import time
 import torch
 import numpy as np
@@ -44,7 +44,8 @@ if args.classifier_type == 'fmri':
     classifier = fMRIClassifier(ngpu, tfmri.shape[0], 150).to(device)
 else:
     img, _, _, _ = dataset.__getitem__(0)
-    classifier = convClassifier(ngpu, img.shape, 150).to(device)
+    # classifier = convClassifier(ngpu, img.shape, 150).to(device)
+    classifier = convClassifierBig(ngpu, img.shape, 150).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
