@@ -13,18 +13,27 @@ import bdpy
 FMRI_DIMENSIONS = 18000
 
 class fMRIImgDataset(Dataset):
-    def __init__(self, args, subject='sub-01'):
+    def __init__(self, args, subject='sub-01', conv=False):
         self.args = args
         self.subj_data = self.getdata(subject)
         self.sz = len(self.subj_data)
 
-        self.img_transform = transforms.Compose([
-                transforms.Resize(280),
-                transforms.RandomCrop(256),
-                transforms.ToTensor(),
-                # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-            ])
+        if conv == False:
+            self.img_transform = transforms.Compose([
+                    transforms.Resize(280),
+                    transforms.RandomCrop(256),
+                    transforms.ToTensor(),
+                    # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                ])
+        else:
+            self.img_transform = transforms.Compose([
+                    transforms.Resize(280),
+                    transforms.RandomCrop(256),
+                    transforms.ColorJitter(brightness=0.3, contrast=0.3),
+                    transforms.ToTensor(),
+                    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                ])
 
     def __len__(self):
         return self.sz

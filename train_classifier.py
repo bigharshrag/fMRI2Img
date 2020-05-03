@@ -16,12 +16,12 @@ args = BaseOptions('classifier').parse()
 batch_size = args.batch_size
 ngpu = args.ngpu
 
-dataset = fMRIImgDataset(args, subject='sub-01')
-
 if args.classifier_type == 'fmri':
+    dataset = fMRIImgDataset(args, subject='sub-01')
     train_dataset = fMRIImgClassifierDataset(dataset, split='train')
     val_dataset = fMRIImgClassifierDataset(dataset, split='test')
 elif args.classifier_type == 'conv':
+    dataset = fMRIImgDataset(args, subject='sub-01', conv=True)
     train_dataset = convImgClassifierDataset(dataset, split='train')
     val_dataset = convImgClassifierDataset(dataset, split='test')
 else:
