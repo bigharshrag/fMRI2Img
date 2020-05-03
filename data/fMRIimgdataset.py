@@ -10,6 +10,8 @@ import PIL.Image
 import lmdb
 import bdpy
 
+FMRI_DIMENSIONS = 18000
+
 class fMRIImgDataset(Dataset):
     def __init__(self, args, subject='sub-01'):
         self.args = args
@@ -54,7 +56,7 @@ class fMRIImgDataset(Dataset):
         image_dir = './data/deeprecon_stimuli_20190212/stimuli/natural-image_training'
         image_file_pattern = '*.JPEG'
 
-        sbj = fmri_data_table[int(subj[-1])]
+        sbj = fmri_data_table[int(subj[-1]) - 1]
         data_arr = []
 
         # Load fMRI data
@@ -113,6 +115,9 @@ class fMRIImgDataset(Dataset):
 
         fmri_data = (fmri_data - fmri_data_mean) / fmri_data_std
 
+        padding = FMRI_DIMENSIONS - fmri_data.shape[1]
+        fmri_data = np.pad(fmri_data, ((0, 0), (0, padding)), 'constant')
+
         for j0, sample_index in np.ndenumerate(sample_index_list):
             if (j0[0] + 1) % 1000 == 0:
                 print(j0[0]+1)
@@ -142,19 +147,21 @@ class fMRIImgDataset(Dataset):
 
         print("Done")
         return data_arr
-        
+
 class fMRIImgClassifierDataset(fMRIImgDataset):
-    def __init__(self, args, subject='sub-01', split='train'):
+    def __init__(self, args, subject=None, split='train'):
         self.args = args
-        self.subj_data = self.getdata(subject)
+        self.subj_data = self.getdata('sub-01')
+        # self.subj_data.extend(self.getdata('sub-02'))
+        # self.subj_data.extend(self.getdata('sub-03'))
         self.set_split(split)
         
     def get_filtered(self, split):
         def f(datum):
             if split == 'train':
-                return datum[3] < 6
+                return datum[3] < 7
             else:
-                return datum[3] >= 6
+                return datum[3] >= 7
         return f
 
     def set_split(self, split):

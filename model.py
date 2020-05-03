@@ -155,23 +155,23 @@ class Classifier(nn.Module):
     def __init__(self, ngpu, input_dim=64, output_dim=2):
         super(Classifier, self).__init__()
         self.s1 = nn.Sequential(
-            nn.Linear(input_dim, 8192),
-            nn.BatchNorm1d(8192),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(8192, 4096),
+            nn.Linear(input_dim, 4096),
             nn.BatchNorm1d(4096),
             nn.ReLU(),
-            nn.Dropout(),
+            nn.Dropout(p=0.6),
+            # nn.Linear(8192, 4096),
+            # nn.BatchNorm1d(4096),
+            # nn.ReLU(),
+            # nn.Dropout(),
             nn.Linear(4096, 1024),
             nn.BatchNorm1d(1024),
             nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(1024, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(512, output_dim)
+            nn.Dropout(p=0.6),
+            # nn.Linear(1024, 512),
+            # nn.BatchNorm1d(512),
+            # nn.ReLU(),
+            # nn.Dropout(),
+            nn.Linear(1024, output_dim)
         )
 
         # self.s2 = nn.Sequential(
