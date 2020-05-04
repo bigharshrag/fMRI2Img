@@ -212,16 +212,19 @@ class convClassifier(nn.Module):
             nn.BatchNorm2d(4),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
+            # Defining another 2D convolution layer
+            nn.Conv2d(4, 4, kernel_size=1, stride=1, padding=1),
+            nn.BatchNorm2d(4),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
-        self.dropout = nn.Dropout(p=0.7)
-
-        self.ff = nn.Linear(4 * 64 * 64, output_dim)
+        self.ff = nn.Linear(66 * 66, output_dim)
         
     def forward(self, input):
         conv =  self.s1(input)
         conv = conv.view(conv.shape[0], -1)
-        output = self.ff(self.dropout(conv))
+        output = self.ff(conv)
 
         return output
 
