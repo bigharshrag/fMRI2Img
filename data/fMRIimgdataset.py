@@ -13,9 +13,9 @@ import bdpy
 FMRI_DIMENSIONS = 18000
 
 class fMRIImgDataset(Dataset):
-    def __init__(self, args, subject='sub-01', conv=False):
+    def __init__(self, args, conv=False):
         self.args = args
-        self.subj_data = self.getdata(subject)
+        self.subj_data = self.getdata(self.args.subject)
         self.sz = len(self.subj_data)
 
         if conv == False:
@@ -42,7 +42,7 @@ class fMRIImgDataset(Dataset):
         fmri, img, class_label, class_idx, label = self.subj_data[idx]
         return fmri, self.img_transform(img), class_label, class_idx
     
-    def getdata(self, subj='sub-01'):
+    def getdata(self, subj):
         # img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227
 
         # TODO: Make them params instead of hardcoded values
@@ -62,7 +62,7 @@ class fMRIImgDataset(Dataset):
             'output_dir': './data'}
         ]
         # Image data
-        image_dir = './data/images/training'
+        image_dir = './data/deeprecon_stimuli_20190212/stimuli/natural-image_training'
         image_file_pattern = '*.JPEG'
 
         sbj = fmri_data_table[int(subj[-1]) - 1]

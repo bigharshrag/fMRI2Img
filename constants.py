@@ -24,7 +24,7 @@ class BaseOptions():
         self.parser.add_argument('--lambda_1', default=0, type=float, help='Beta1 hyperparam for Adam optimizers')
         self.parser.add_argument('--lambda_2', default=0, type=float, help='Beta1 hyperparam for Adam optimizers')
         self.parser.add_argument('--lambda_3', default=1, type=float, help='Beta1 hyperparam for Adam optimizers')
-            
+        self.parser.add_argument('--subject', type=str, default='sub-01')           
         self.parser.add_argument('--snapshot_interval', type=int, default=5)
 
         if type == 'classifier':
