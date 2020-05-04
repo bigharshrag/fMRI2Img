@@ -59,6 +59,7 @@ ce_loss = nn.CrossEntropyLoss()
 writer = SummaryWriter('runs/' + args.exp_name)
 
 print('batches', len(dataset) / batch_size)
+scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [3, 8], 0.5)
 
 total_steps = 0
 TOP_K = [1, 2, 3, 4, 5]
@@ -119,6 +120,8 @@ for it in range(args.num_epochs):
                         total[k_idx] +=1 
             for k_idx in range(len(TOP_K)):
                 print("K: {0} Val Accuracy: {1} / {2} = {3}".format(TOP_K[k_idx], correct[k_idx], total[k_idx], float(correct[k_idx])/total[k_idx]))
+
+    # scheduler.step()
 
 # TODO rebuild this plot
 # plt.figure(figsize=(10,5))
