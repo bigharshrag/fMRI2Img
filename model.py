@@ -231,26 +231,20 @@ class convClassifierBig(nn.Module):
         super(convClassifierBig, self).__init__()
         self.s1 = nn.Sequential(
             # Defining a 2D convolution layer
-            nn.Conv2d(3, 8, kernel_size=7, stride=4, padding=1),
-            # PrintLayer(),
+            nn.Conv2d(3, 8, kernel_size=7, stride=4, padding=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(8, 16, kernel_size=5, stride=4, padding=1),
-            # PrintLayer(),
+            nn.Conv2d(8, 16, kernel_size=5, stride=4, padding=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(16, 32, kernel_size=3, stride=2),
-            # PrintLayer(),
+            nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2),
-            # PrintLayer(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(inplace=True),
         )
 
         self.s2 = nn.Sequential(
-            nn.Linear(576, 256),
-            # PrintLayer(),
+            nn.Linear(64 * 4 * 4, 256),
             nn.ReLU(inplace=True),
             nn.Linear(256, output_dim),
-            # PrintLayer(),
             nn.ReLU(inplace=True),
         )
         
