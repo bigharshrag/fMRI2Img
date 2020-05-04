@@ -150,3 +150,64 @@ class Discriminator(nn.Module):
 
     def forward(self, input):
         return self.s1(input)
+
+
+class GeneratorSmall(nn.Module):
+    def __init__(self, ngpu, input_dim=64):
+        super(GeneratorSmall, self).__init__()
+        self.ngpu = ngpu
+        self.s1 = nn.Sequential(
+            nn.Linear(input_dim, 8192),
+            nn.LeakyReLU(negative_slope=0.3),
+            nn.Linear(8192, 8192),
+            # nn.LeakyReLU(negative_slope=0.3),
+            # nn.Linear(8192, 8192)
+        )
+
+        self.s2 = nn.Sequential(
+            nn.ConvTranspose2d(512, 256, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(128),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(128, 64, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(64, 3, 4, 2, 1, bias=False),
+            nn.Tanh()
+        )
+
+    def forward(self, input):
+        s1 = self.s1(input)
+        s1 = s1.view(-1, 512, 4, 4)
+        s2 = self.s2(s1)
+        generated = s2
+        return generated
+
+class DiscriminatorSmall(nn.Module):
+    def __init__(self, ngpu, nc=3, ndf=64):
+        super(DiscriminatorSmall, self).__init__()
+        self.ngpu = ngpu
+        self.s1 = nn.Sequential(
+            nn.Conv2d(nc, ndf, 4, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf, ndf * 2, 4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 2, ndf * 4, 4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 4, ndf * 8, 4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(ndf * 8, 1, 4, stride=1, padding=0, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, input):
+        return self.s1(input)

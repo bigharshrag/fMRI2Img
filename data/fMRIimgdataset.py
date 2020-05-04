@@ -17,11 +17,17 @@ class fMRIImgDataset(Dataset):
         self.sz = len(self.subj_data)
 
         self.img_transform = transforms.Compose([
-                transforms.Resize(280),
-                transforms.RandomCrop(256),
+                transforms.Resize(64),
+                # transforms.RandomCrop(256),
                 transforms.ToTensor(),
                 # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
+        
+        self.cl_transform = transforms.Compose([
+                transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ])
 
     def __len__(self):
@@ -29,7 +35,7 @@ class fMRIImgDataset(Dataset):
 
     def __getitem__(self, idx):
         fmri, label, img = self.subj_data[idx]
-        return fmri, self.img_transform(img)
+        return fmri, self.img_transform(img), self.cl_transform(img)
     
     def getdata(self, subj='sub-01'):
         # img_size = (248, 248) # For image jittering, we prepare the images to be larger than 227 x 227

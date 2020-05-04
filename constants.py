@@ -20,8 +20,8 @@ class BaseOptions():
         self.parser.add_argument('--d_lr', default=0.00005, type=float, help='Learning rate for optimizers')
         self.parser.add_argument('--beta1', default=0.9, type=float, help='Beta1 hyperparam for Adam optimizers')
         
-        self.parser.add_argument('--lambda_1', default=0, type=float, help='Beta1 hyperparam for Adam optimizers')
-        self.parser.add_argument('--lambda_2', default=0, type=float, help='Beta1 hyperparam for Adam optimizers')
+        self.parser.add_argument('--lambda_1', default=0.4, type=float, help='Beta1 hyperparam for Adam optimizers')
+        self.parser.add_argument('--lambda_2', default=0.1, type=float, help='Beta1 hyperparam for Adam optimizers')
         self.parser.add_argument('--lambda_3', default=1, type=float, help='Beta1 hyperparam for Adam optimizers')
             
         self.parser.add_argument('--snapshot_interval', default=5)

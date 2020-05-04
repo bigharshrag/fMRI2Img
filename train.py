@@ -1,10 +1,11 @@
-from model import Encoder, Generator, Discriminator, DiscriminatorOld
+from model import Encoder, Generator, Discriminator, DiscriminatorOld, GeneratorSmall, DiscriminatorSmall
 import time
 import torch
 import numpy as np
 from torch import nn
 from torch import optim
 import torchvision.utils as vutils
+from torchvision import transforms
 from torch.utils.tensorboard import SummaryWriter
 from matplotlib import pyplot as plt
 from constants import BaseOptions
@@ -24,8 +25,9 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 encoder = Encoder(ngpu).to(device)
 
 # Create the generator
-tfmri, _ = dataset.__getitem__(0)
-generator = Generator(ngpu, tfmri.shape[0]).to(device)
+tfmri, _ , _= dataset.__getitem__(0)
+# generator = Generator(ngpu, tfmri.shape[0]).to(device)
+generator = GeneratorSmall(ngpu, tfmri.shape[0]).to(device)
 
 # Handle multi-gpu if desired
 if (device.type == 'cuda') and (ngpu > 1):
@@ -34,6 +36,8 @@ if (device.type == 'cuda') and (ngpu > 1):
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('Linear') != -1:
         nn.init.normal_(m.weight.data, 0.0, 0.02)
     elif classname.find('BatchNorm') != -1:
         nn.init.normal_(m.weight.data, 1.0, 0.02)
@@ -46,7 +50,8 @@ generator.apply(weights_init)
 # print(generator)
 
 # Create the Discriminator
-discriminator = Discriminator(ngpu, 3).to(device)
+discriminator = DiscriminatorSmall(ngpu, 3, 64).to(device)
+# discriminator = Discriminator(ngpu, 3).to(device)
 # discriminator = DiscriminatorOld(ngpu, 3).to(device)
 
 # Handle multi-gpu if desired
@@ -60,7 +65,7 @@ discriminator.apply(weights_init)
 # print(discriminator)
 
 dataiter = iter(dataloader)
-vfm, vim = dataiter.next()
+vfm, vim, _ = dataiter.next()
 vfm, vim = vfm[:4], vim[:4]
 
 # Establish convention for real and fake labels during training
@@ -79,6 +84,16 @@ train_gen = True
 bce_loss = nn.BCELoss()
 mse_loss = nn.MSELoss(reduction='mean')
 
+schedulerG = torch.optim.lr_scheduler.StepLR(optimizerG, 50, 0.1)
+schedulerD = torch.optim.lr_scheduler.StepLR(optimizerD, 30, 0.1)
+
+img_transform = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ])
+
 writer = SummaryWriter('/scratch/cluster/rishabh/runs/' + args.exp_name)
 
 total_steps = 0
@@ -86,22 +101,25 @@ total_steps = 0
 start = time.time()
 for it in range(args.num_epochs):
     for i, data in enumerate(dataloader):
-        data_fmri, data_image = data[0].to(device), data[1].to(device)
+        data_fmri, data_image, enc_img = data[0].to(device), data[1].to(device), data[2].to(device)
         curr_sz = data_image.size(0)
 
         total_steps += curr_sz
         # Feed the data (images) to the encoder and run it        
-        # encoded_real_image = encoder(data_image)
+        encoded_real_image = encoder(enc_img)
 
         # Feed the data to the generator and run it
         generator_output = generator(data_fmri)
-        # print(generator_output.shape)
-        # generator_output_crop = generator_output[:, :, 16:240, 16:240].detach()
-        # generator_image_loss = mse_loss(generator_output_crop, data_image)
+        generator_output_enc = torch.empty(size=(generator_output.shape[0], 3, 224,224))
+        for imgi in range(generator_output.shape[0]):
+            generator_output_enc[imgi] = img_transform(generator_output[imgi].detach().cpu())
+        generator_output_enc = generator_output_enc.to(device)
+
+        generator_image_loss = mse_loss(generator_output_enc, enc_img)
 
         # Feed the generated image into the encoder
-        # encoded_generated_image = encoder(generator_output_crop)
-        # generator_encoded_loss = mse_loss(encoded_generated_image, encoded_real_image)
+        encoded_generated_image = encoder(generator_output_enc)
+        generator_encoded_loss = mse_loss(encoded_generated_image, encoded_real_image)
 
         discriminator.zero_grad()
         # Run the discriminator on real image
@@ -127,8 +145,8 @@ for it in range(args.num_epochs):
         generator_disc_loss = bce_loss(generated_classification_for_generator, real_labels_for_generator_loss)
 
         if train_gen:
-            # gen_loss = args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss
-            gen_loss = generator_disc_loss
+            gen_loss = args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss
+            # gen_loss = generator_disc_loss
             gen_loss.backward()
     
             optimizerG.step()
@@ -163,19 +181,19 @@ for it in range(args.num_epochs):
         print('========================================')
         print('')
         print('[%s] Iteration %d: %f seconds' % (time.strftime('%c'), it, time.time()-start))
-        # print('  generator image loss: %e' % (generator_image_loss))
-        # print('  generator feat loss: %e' % (generator_encoded_loss))
+        print('  generator image loss: %e' % (generator_image_loss.item()))
+        print('  generator feat loss: %e' % (generator_encoded_loss.item()))
         print('  discr real loss: %e' % (disc_loss_real.item()))
         print('  discr generated loss: %e' % (disc_loss_gen.item()))
         print('  generator loss from discriminator: %e' % (generator_disc_loss.item()))
-        # writer.add_scalar('data/generator_image_loss', args.lambda_1 * generator_image_loss, total_steps)
-        # writer.add_scalar('data/generator_feat_loss', args.lambda_2 * generator_encoded_loss, total_steps)
+        # writer.add_scalar('data/generator_image_loss.item()', args.lambda_1 * generator_image_loss.item(), total_steps)
+        # writer.add_scalar('data/generator_feat_loss', args.lambda_2 * generator_encoded_loss.item(), total_steps)
         writer.add_scalar('data/discr_real_loss', disc_loss_real.item(), total_steps)
         writer.add_scalar('data/discr_generated_loss', disc_loss_gen.item(), total_steps)
         writer.add_scalar('data/generator_loss', args.lambda_3 * generator_disc_loss.item(), total_steps)
         writer.add_scalar('data/discr_loss_ratio', discr_loss_ratio, total_steps)
         writer.add_scalars('loss/', {
-            # 'generator': args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss + args.lambda_3 * generator_disc_loss.item(),
+            # 'generator': args.lambda_1 * generator_image_loss + args.lambda_2 * generator_encoded_loss.item() + args.lambda_3 * generator_disc_loss.item(),
             'generator': generator_disc_loss.item(),
             'discriminator': disc_loss_real + disc_loss_gen.item(),
         }, total_steps)
@@ -188,4 +206,7 @@ for it in range(args.num_epochs):
                 img_grid = vutils.make_grid(fakeimg, padding=5, normalize=True).cpu()
                 img_grid2 = vutils.make_grid(vim, padding=5, normalize=True).cpu()
                 writer.add_image('viz_input', img_grid2)
-                writer.add_image('viz_output', img_grid)           
+                writer.add_image('viz_output', img_grid)   
+
+    schedulerG.step()     
+    # schedulerD.step()     
