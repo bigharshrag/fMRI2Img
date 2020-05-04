@@ -214,12 +214,14 @@ class convClassifier(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
+        self.dropout = nn.Dropout(p=0.7)
+
         self.ff = nn.Linear(4 * 64 * 64, output_dim)
         
     def forward(self, input):
         conv =  self.s1(input)
         conv = conv.view(conv.shape[0], -1)
-        output = self.ff(conv)
+        output = self.ff(self.dropout(conv))
 
         return output
 

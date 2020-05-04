@@ -1,0 +1,203 @@
+1000
+2000
+3000
+4000
+5000
+6000
+Done
+('batches', 93)
+Epoch 0
+K: 1 Train Accuracy: 53.0 / 5250.0 = 0.0100952380952
+K: 2 Train Accuracy: 95.0 / 5250.0 = 0.0180952380952
+K: 3 Train Accuracy: 139.0 / 5250.0 = 0.0264761904762
+K: 4 Train Accuracy: 181.0 / 5250.0 = 0.0344761904762
+K: 5 Train Accuracy: 241.0 / 5250.0 = 0.0459047619048
+K: 1 Val Accuracy: 12.0 / 750.0 = 0.016
+K: 2 Val Accuracy: 23.0 / 750.0 = 0.0306666666667
+K: 3 Val Accuracy: 37.0 / 750.0 = 0.0493333333333
+K: 4 Val Accuracy: 46.0 / 750.0 = 0.0613333333333
+K: 5 Val Accuracy: 59.0 / 750.0 = 0.0786666666667
+Epoch 1
+K: 1 Train Accuracy: 196.0 / 5250.0 = 0.0373333333333
+K: 2 Train Accuracy: 349.0 / 5250.0 = 0.0664761904762
+K: 3 Train Accuracy: 464.0 / 5250.0 = 0.088380952381
+K: 4 Train Accuracy: 576.0 / 5250.0 = 0.109714285714
+K: 5 Train Accuracy: 694.0 / 5250.0 = 0.13219047619
+Epoch 2
+K: 1 Train Accuracy: 499.0 / 5250.0 = 0.0950476190476
+K: 2 Train Accuracy: 809.0 / 5250.0 = 0.154095238095
+K: 3 Train Accuracy: 1053.0 / 5250.0 = 0.200571428571
+K: 4 Train Accuracy: 1227.0 / 5250.0 = 0.233714285714
+K: 5 Train Accuracy: 1403.0 / 5250.0 = 0.267238095238
+Epoch 3
+K: 1 Train Accuracy: 919.0 / 5250.0 = 0.175047619048
+K: 2 Train Accuracy: 1384.0 / 5250.0 = 0.263619047619
+K: 3 Train Accuracy: 1755.0 / 5250.0 = 0.334285714286
+K: 4 Train Accuracy: 2029.0 / 5250.0 = 0.386476190476
+K: 5 Train Accuracy: 2245.0 / 5250.0 = 0.427619047619
+K: 1 Val Accuracy: 45.0 / 750.0 = 0.06
+K: 2 Val Accuracy: 78.0 / 750.0 = 0.104
+K: 3 Val Accuracy: 103.0 / 750.0 = 0.137333333333
+K: 4 Val Accuracy: 124.0 / 750.0 = 0.165333333333
+K: 5 Val Accuracy: 146.0 / 750.0 = 0.194666666667
+Epoch 4
+K: 1 Train Accuracy: 1614.0 / 5250.0 = 0.307428571429
+K: 2 Train Accuracy: 2220.0 / 5250.0 = 0.422857142857
+K: 3 Train Accuracy: 2608.0 / 5250.0 = 0.496761904762
+K: 4 Train Accuracy: 2884.0 / 5250.0 = 0.549333333333
+K: 5 Train Accuracy: 3108.0 / 5250.0 = 0.592
+Epoch 5
+K: 1 Train Accuracy: 2224.0 / 5250.0 = 0.423619047619
+K: 2 Train Accuracy: 2925.0 / 5250.0 = 0.557142857143
+K: 3 Train Accuracy: 3320.0 / 5250.0 = 0.632380952381
+K: 4 Train Accuracy: 3579.0 / 5250.0 = 0.681714285714
+K: 5 Train Accuracy: 3812.0 / 5250.0 = 0.726095238095
+Epoch 6
+K: 1 Train Accuracy: 2837.0 / 5250.0 = 0.540380952381
+K: 2 Train Accuracy: 3485.0 / 5250.0 = 0.66380952381
+K: 3 Train Accuracy: 3883.0 / 5250.0 = 0.739619047619
+K: 4 Train Accuracy: 4116.0 / 5250.0 = 0.784
+K: 5 Train Accuracy: 4284.0 / 5250.0 = 0.816
+K: 1 Val Accuracy: 71.0 / 750.0 = 0.0946666666667
+K: 2 Val Accuracy: 112.0 / 750.0 = 0.149333333333
+K: 3 Val Accuracy: 143.0 / 750.0 = 0.190666666667
+K: 4 Val Accuracy: 182.0 / 750.0 = 0.242666666667
+K: 5 Val Accuracy: 208.0 / 750.0 = 0.277333333333
+Epoch 7
+K: 1 Train Accuracy: 3400.0 / 5250.0 = 0.647619047619
+K: 2 Train Accuracy: 4046.0 / 5250.0 = 0.770666666667
+K: 3 Train Accuracy: 4349.0 / 5250.0 = 0.828380952381
+K: 4 Train Accuracy: 4538.0 / 5250.0 = 0.864380952381
+K: 5 Train Accuracy: 4645.0 / 5250.0 = 0.884761904762
+Epoch 8
+K: 1 Train Accuracy: 3834.0 / 5250.0 = 0.730285714286
+K: 2 Train Accuracy: 4406.0 / 5250.0 = 0.839238095238
+K: 3 Train Accuracy: 4647.0 / 5250.0 = 0.885142857143
+K: 4 Train Accuracy: 4764.0 / 5250.0 = 0.907428571429
+K: 5 Train Accuracy: 4844.0 / 5250.0 = 0.922666666667
+Epoch 9
+K: 1 Train Accuracy: 4196.0 / 5250.0 = 0.799238095238
+K: 2 Train Accuracy: 4667.0 / 5250.0 = 0.888952380952
+K: 3 Train Accuracy: 4814.0 / 5250.0 = 0.916952380952
+K: 4 Train Accuracy: 4915.0 / 5250.0 = 0.93619047619
+K: 5 Train Accuracy: 4969.0 / 5250.0 = 0.946476190476
+K: 1 Val Accuracy: 86.0 / 750.0 = 0.114666666667
+K: 2 Val Accuracy: 130.0 / 750.0 = 0.173333333333
+K: 3 Val Accuracy: 153.0 / 750.0 = 0.204
+K: 4 Val Accuracy: 186.0 / 750.0 = 0.248
+K: 5 Val Accuracy: 210.0 / 750.0 = 0.28
+Epoch 10
+K: 1 Train Accuracy: 4430.0 / 5250.0 = 0.84380952381
+K: 2 Train Accuracy: 4807.0 / 5250.0 = 0.915619047619
+K: 3 Train Accuracy: 4959.0 / 5250.0 = 0.944571428571
+K: 4 Train Accuracy: 5026.0 / 5250.0 = 0.957333333333
+K: 5 Train Accuracy: 5063.0 / 5250.0 = 0.964380952381
+Epoch 11
+K: 1 Train Accuracy: 4538.0 / 5250.0 = 0.864380952381
+K: 2 Train Accuracy: 4891.0 / 5250.0 = 0.931619047619
+K: 3 Train Accuracy: 5009.0 / 5250.0 = 0.954095238095
+K: 4 Train Accuracy: 5070.0 / 5250.0 = 0.965714285714
+K: 5 Train Accuracy: 5099.0 / 5250.0 = 0.971238095238
+Epoch 12
+K: 1 Train Accuracy: 4641.0 / 5250.0 = 0.884
+K: 2 Train Accuracy: 4933.0 / 5250.0 = 0.939619047619
+K: 3 Train Accuracy: 5037.0 / 5250.0 = 0.959428571429
+K: 4 Train Accuracy: 5089.0 / 5250.0 = 0.969333333333
+K: 5 Train Accuracy: 5118.0 / 5250.0 = 0.974857142857
+K: 1 Val Accuracy: 82.0 / 750.0 = 0.109333333333
+K: 2 Val Accuracy: 122.0 / 750.0 = 0.162666666667
+K: 3 Val Accuracy: 155.0 / 750.0 = 0.206666666667
+K: 4 Val Accuracy: 188.0 / 750.0 = 0.250666666667
+K: 5 Val Accuracy: 210.0 / 750.0 = 0.28
+Epoch 13
+K: 1 Train Accuracy: 4698.0 / 5250.0 = 0.894857142857
+K: 2 Train Accuracy: 4995.0 / 5250.0 = 0.951428571429
+K: 3 Train Accuracy: 5099.0 / 5250.0 = 0.971238095238
+K: 4 Train Accuracy: 5130.0 / 5250.0 = 0.977142857143
+K: 5 Train Accuracy: 5156.0 / 5250.0 = 0.982095238095
+Epoch 14
+K: 1 Train Accuracy: 4780.0 / 5250.0 = 0.910476190476
+K: 2 Train Accuracy: 5020.0 / 5250.0 = 0.95619047619
+K: 3 Train Accuracy: 5114.0 / 5250.0 = 0.974095238095
+K: 4 Train Accuracy: 5146.0 / 5250.0 = 0.98019047619
+K: 5 Train Accuracy: 5164.0 / 5250.0 = 0.983619047619
+Epoch 15
+K: 1 Train Accuracy: 4816.0 / 5250.0 = 0.917333333333
+K: 2 Train Accuracy: 5044.0 / 5250.0 = 0.960761904762
+K: 3 Train Accuracy: 5129.0 / 5250.0 = 0.976952380952
+K: 4 Train Accuracy: 5158.0 / 5250.0 = 0.982476190476
+K: 5 Train Accuracy: 5184.0 / 5250.0 = 0.987428571429
+K: 1 Val Accuracy: 87.0 / 750.0 = 0.116
+K: 2 Val Accuracy: 140.0 / 750.0 = 0.186666666667
+K: 3 Val Accuracy: 179.0 / 750.0 = 0.238666666667
+K: 4 Val Accuracy: 206.0 / 750.0 = 0.274666666667
+K: 5 Val Accuracy: 231.0 / 750.0 = 0.308
+Epoch 16
+K: 1 Train Accuracy: 4883.0 / 5250.0 = 0.930095238095
+K: 2 Train Accuracy: 5093.0 / 5250.0 = 0.970095238095
+K: 3 Train Accuracy: 5140.0 / 5250.0 = 0.979047619048
+K: 4 Train Accuracy: 5173.0 / 5250.0 = 0.985333333333
+K: 5 Train Accuracy: 5184.0 / 5250.0 = 0.987428571429
+Epoch 17
+K: 1 Train Accuracy: 4906.0 / 5250.0 = 0.934476190476
+K: 2 Train Accuracy: 5098.0 / 5250.0 = 0.971047619048
+K: 3 Train Accuracy: 5145.0 / 5250.0 = 0.98
+K: 4 Train Accuracy: 5178.0 / 5250.0 = 0.986285714286
+K: 5 Train Accuracy: 5194.0 / 5250.0 = 0.989333333333
+Epoch 18
+K: 1 Train Accuracy: 4887.0 / 5250.0 = 0.930857142857
+K: 2 Train Accuracy: 5086.0 / 5250.0 = 0.968761904762
+K: 3 Train Accuracy: 5146.0 / 5250.0 = 0.98019047619
+K: 4 Train Accuracy: 5182.0 / 5250.0 = 0.987047619048
+K: 5 Train Accuracy: 5198.0 / 5250.0 = 0.990095238095
+K: 1 Val Accuracy: 94.0 / 750.0 = 0.125333333333
+K: 2 Val Accuracy: 132.0 / 750.0 = 0.176
+K: 3 Val Accuracy: 171.0 / 750.0 = 0.228
+K: 4 Val Accuracy: 199.0 / 750.0 = 0.265333333333
+K: 5 Val Accuracy: 223.0 / 750.0 = 0.297333333333
+Epoch 19
+K: 1 Train Accuracy: 4908.0 / 5250.0 = 0.934857142857
+K: 2 Train Accuracy: 5121.0 / 5250.0 = 0.975428571429
+K: 3 Train Accuracy: 5167.0 / 5250.0 = 0.98419047619
+K: 4 Train Accuracy: 5187.0 / 5250.0 = 0.988
+K: 5 Train Accuracy: 5202.0 / 5250.0 = 0.990857142857
+Epoch 20
+K: 1 Train Accuracy: 4930.0 / 5250.0 = 0.939047619048
+K: 2 Train Accuracy: 5125.0 / 5250.0 = 0.97619047619
+K: 3 Train Accuracy: 5176.0 / 5250.0 = 0.985904761905
+K: 4 Train Accuracy: 5203.0 / 5250.0 = 0.991047619048
+K: 5 Train Accuracy: 5213.0 / 5250.0 = 0.992952380952
+Epoch 21
+K: 1 Train Accuracy: 4906.0 / 5250.0 = 0.934476190476
+K: 2 Train Accuracy: 5123.0 / 5250.0 = 0.97580952381
+K: 3 Train Accuracy: 5167.0 / 5250.0 = 0.98419047619
+K: 4 Train Accuracy: 5182.0 / 5250.0 = 0.987047619048
+K: 5 Train Accuracy: 5202.0 / 5250.0 = 0.990857142857
+K: 1 Val Accuracy: 88.0 / 750.0 = 0.117333333333
+K: 2 Val Accuracy: 142.0 / 750.0 = 0.189333333333
+K: 3 Val Accuracy: 165.0 / 750.0 = 0.22
+K: 4 Val Accuracy: 192.0 / 750.0 = 0.256
+K: 5 Val Accuracy: 221.0 / 750.0 = 0.294666666667
+Epoch 22
+K: 1 Train Accuracy: 4995.0 / 5250.0 = 0.951428571429
+K: 2 Train Accuracy: 5150.0 / 5250.0 = 0.980952380952
+K: 3 Train Accuracy: 5187.0 / 5250.0 = 0.988
+K: 4 Train Accuracy: 5211.0 / 5250.0 = 0.992571428571
+K: 5 Train Accuracy: 5221.0 / 5250.0 = 0.994476190476
+Epoch 23
+K: 1 Train Accuracy: 4965.0 / 5250.0 = 0.945714285714
+K: 2 Train Accuracy: 5154.0 / 5250.0 = 0.981714285714
+K: 3 Train Accuracy: 5188.0 / 5250.0 = 0.98819047619
+K: 4 Train Accuracy: 5219.0 / 5250.0 = 0.994095238095
+K: 5 Train Accuracy: 5225.0 / 5250.0 = 0.995238095238
+Epoch 24
+K: 1 Train Accuracy: 4939.0 / 5250.0 = 0.940761904762
+K: 2 Train Accuracy: 5120.0 / 5250.0 = 0.975238095238
+K: 3 Train Accuracy: 5167.0 / 5250.0 = 0.98419047619
+K: 4 Train Accuracy: 5189.0 / 5250.0 = 0.988380952381
+K: 5 Train Accuracy: 5207.0 / 5250.0 = 0.99180952381
+K: 1 Val Accuracy: 91.0 / 750.0 = 0.121333333333
+K: 2 Val Accuracy: 133.0 / 750.0 = 0.177333333333
+K: 3 Val Accuracy: 159.0 / 750.0 = 0.212
+K: 4 Val Accuracy: 189.0 / 750.0 = 0.252
+K: 5 Val Accuracy: 220.0 / 750.0 = 0.293333333333
